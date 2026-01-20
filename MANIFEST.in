@@ -1,0 +1,2 @@
+recursive-include tutork8s/patches *
+recursive-include tutork8s/templates *
