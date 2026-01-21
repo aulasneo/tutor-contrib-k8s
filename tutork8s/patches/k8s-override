@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cms
+spec:
+  template:
+    spec:
+      containers:
+        - name: cms
+          resources:
+            requests:
+              cpu: {{ K8S_CMS_CPU_REQUEST }}
+              memory: {{ K8S_CMS_MEMORY_REQUEST }}
+            limits:
+              cpu: {{ K8S_CMS_CPU_LIMIT }}
+              memory: {{ K8S_CMS_MEMORY_LIMIT }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cms-worker
+spec:
+  template:
+    spec:
+      containers:
+        - name: cms-worker
+          resources:
+            requests:
+              cpu: {{ K8S_CMS_WORKER_CPU_REQUEST }}
+              memory: {{ K8S_CMS_WORKER_MEMORY_REQUEST }}
+            limits:
+              cpu: {{ K8S_CMS_WORKER_CPU_LIMIT }}
+              memory: {{ K8S_CMS_WORKER_MEMORY_LIMIT }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lms
+spec:
+  template:
+    spec:
+      containers:
+        - name: lms
+          resources:
+            requests:
+              cpu: {{ K8S_LMS_CPU_REQUEST }}
+              memory: {{ K8S_LMS_MEMORY_REQUEST }}
+            limits:
+              cpu: {{ K8S_LMS_CPU_LIMIT }}
+              memory: {{ K8S_LMS_MEMORY_LIMIT }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lms-worker
+spec:
+  template:
+    spec:
+      containers:
+        - name: lms-worker
+          resources:
+            requests:
+              cpu: {{ K8S_LMS_WORKER_CPU_REQUEST }}
+              memory: {{ K8S_LMS_WORKER_MEMORY_REQUEST }}
+            limits:
+              cpu: {{ K8S_LMS_WORKER_CPU_LIMIT }}
+              memory: {{ K8S_LMS_WORKER_MEMORY_LIMIT }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mfe
+spec:
+  template:
+    spec:
+      containers:
+        - name: mfe
+          resources:
+            requests:
+              cpu: {{ K8S_MFE_CPU_REQUEST }}
+              memory: {{ K8S_MFE_MEMORY_REQUEST }}
+            limits:
+              cpu: {{ K8S_MFE_CPU_LIMIT }}
+              memory: {{ K8S_MFE_MEMORY_LIMIT }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: caddy
+spec:
+  template:
+    spec:
+      containers:
+        - name: caddy
+          resources:
+            requests:
+              cpu: {{ K8S_CADDY_CPU_REQUEST }}
+              memory: {{ K8S_CADDY_MEMORY_REQUEST }}
+            limits:
+              cpu: {{ K8S_CADDY_CPU_LIMIT }}
+              memory: {{ K8S_CADDY_MEMORY_LIMIT }}

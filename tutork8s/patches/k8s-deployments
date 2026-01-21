@@ -1,0 +1,285 @@
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: lms-hpa
+  namespace: {{ K8S_NAMESPACE }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: lms
+  minReplicas: {{ K8S_LMS_REPLICAS }}
+  maxReplicas: {{ K8S_LMS_MAX_REPLICAS }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ K8S_LMS_HPA_CPU_AVERAGE_UTILIZATION }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ K8S_LMS_HPA_MEMORY_AVERAGE_UTILIZATION }}
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: {{ K8S_LMS_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS }}
+      selectPolicy: Max
+      policies:
+        - type: Percent
+          value: {{ K8S_LMS_HPA_SCALE_UP_PERCENT }}
+          periodSeconds: {{ K8S_LMS_HPA_SCALE_UP_PERIOD_SECONDS }}
+        - type: Pods
+          value: {{ K8S_LMS_HPA_SCALE_UP_PODS }}
+          periodSeconds: {{ K8S_LMS_HPA_SCALE_UP_PERIOD_SECONDS }}
+    scaleDown:
+      stabilizationWindowSeconds: {{ K8S_LMS_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS }}
+      selectPolicy: Min
+      policies:
+        - type: Percent
+          value: {{ K8S_LMS_HPA_SCALE_DOWN_PERCENT }}
+          periodSeconds: {{ K8S_LMS_HPA_SCALE_DOWN_PERIOD_SECONDS }}
+        - type: Pods
+          value: {{ K8S_LMS_HPA_SCALE_DOWN_PODS }}
+          periodSeconds: {{ K8S_LMS_HPA_SCALE_DOWN_PERIOD_SECONDS }}
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: lms-worker-hpa
+  namespace: {{ K8S_NAMESPACE }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: lms-worker
+  minReplicas: {{ K8S_LMS_WORKER_REPLICAS }}
+  maxReplicas: {{ K8S_LMS_WORKER_MAX_REPLICAS }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ K8S_LMS_WORKER_HPA_CPU_AVERAGE_UTILIZATION }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ K8S_LMS_WORKER_HPA_MEMORY_AVERAGE_UTILIZATION }}
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: {{ K8S_LMS_WORKER_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS }}
+      selectPolicy: Max
+      policies:
+        - type: Percent
+          value: {{ K8S_LMS_WORKER_HPA_SCALE_UP_PERCENT }}
+          periodSeconds: {{ K8S_LMS_WORKER_HPA_SCALE_UP_PERIOD_SECONDS }}
+        - type: Pods
+          value: {{ K8S_LMS_WORKER_HPA_SCALE_UP_PODS }}
+          periodSeconds: {{ K8S_LMS_WORKER_HPA_SCALE_UP_PERIOD_SECONDS }}
+    scaleDown:
+      stabilizationWindowSeconds: {{ K8S_LMS_WORKER_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS }}
+      selectPolicy: Min
+      policies:
+        - type: Percent
+          value: {{ K8S_LMS_WORKER_HPA_SCALE_DOWN_PERCENT }}
+          periodSeconds: {{ K8S_LMS_WORKER_HPA_SCALE_DOWN_PERIOD_SECONDS }}
+        - type: Pods
+          value: {{ K8S_LMS_WORKER_HPA_SCALE_DOWN_PODS }}
+          periodSeconds: {{ K8S_LMS_WORKER_HPA_SCALE_DOWN_PERIOD_SECONDS }}
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: cms-hpa
+  namespace: {{ K8S_NAMESPACE }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: cms
+  minReplicas: {{ K8S_CMS_REPLICAS }}
+  maxReplicas: {{ K8S_CMS_MAX_REPLICAS }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ K8S_CMS_HPA_CPU_AVERAGE_UTILIZATION }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ K8S_CMS_HPA_MEMORY_AVERAGE_UTILIZATION }}
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: {{ K8S_CMS_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS }}
+      selectPolicy: Max
+      policies:
+        - type: Percent
+          value: {{ K8S_CMS_HPA_SCALE_UP_PERCENT }}
+          periodSeconds: {{ K8S_CMS_HPA_SCALE_UP_PERIOD_SECONDS }}
+        - type: Pods
+          value: {{ K8S_CMS_HPA_SCALE_UP_PODS }}
+          periodSeconds: {{ K8S_CMS_HPA_SCALE_UP_PERIOD_SECONDS }}
+    scaleDown:
+      stabilizationWindowSeconds: {{ K8S_CMS_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS }}
+      selectPolicy: Min
+      policies:
+        - type: Percent
+          value: {{ K8S_CMS_HPA_SCALE_DOWN_PERCENT }}
+          periodSeconds: {{ K8S_CMS_HPA_SCALE_DOWN_PERIOD_SECONDS }}
+        - type: Pods
+          value: {{ K8S_CMS_HPA_SCALE_DOWN_PODS }}
+          periodSeconds: {{ K8S_CMS_HPA_SCALE_DOWN_PERIOD_SECONDS }}
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: cms-worker-hpa
+  namespace: {{ K8S_NAMESPACE }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: cms-worker
+  minReplicas: {{ K8S_CMS_WORKER_REPLICAS }}
+  maxReplicas: {{ K8S_CMS_WORKER_MAX_REPLICAS }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ K8S_CMS_WORKER_HPA_CPU_AVERAGE_UTILIZATION }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ K8S_CMS_WORKER_HPA_MEMORY_AVERAGE_UTILIZATION }}
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: {{ K8S_CMS_WORKER_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS }}
+      selectPolicy: Max
+      policies:
+        - type: Percent
+          value: {{ K8S_CMS_WORKER_HPA_SCALE_UP_PERCENT }}
+          periodSeconds: {{ K8S_CMS_WORKER_HPA_SCALE_UP_PERIOD_SECONDS }}
+        - type: Pods
+          value: {{ K8S_CMS_WORKER_HPA_SCALE_UP_PODS }}
+          periodSeconds: {{ K8S_CMS_WORKER_HPA_SCALE_UP_PERIOD_SECONDS }}
+    scaleDown:
+      stabilizationWindowSeconds: {{ K8S_CMS_WORKER_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS }}
+      selectPolicy: Min
+      policies:
+        - type: Percent
+          value: {{ K8S_CMS_WORKER_HPA_SCALE_DOWN_PERCENT }}
+          periodSeconds: {{ K8S_CMS_WORKER_HPA_SCALE_DOWN_PERIOD_SECONDS }}
+        - type: Pods
+          value: {{ K8S_CMS_WORKER_HPA_SCALE_DOWN_PODS }}
+          periodSeconds: {{ K8S_CMS_WORKER_HPA_SCALE_DOWN_PERIOD_SECONDS }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: mfe-hpa
+  namespace: {{ K8S_NAMESPACE }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: mfe
+  minReplicas: {{ K8S_MFE_REPLICAS }}
+  maxReplicas: {{ K8S_MFE_MAX_REPLICAS }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ K8S_MFE_HPA_CPU_AVERAGE_UTILIZATION }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ K8S_MFE_HPA_MEMORY_AVERAGE_UTILIZATION }}
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: {{ K8S_MFE_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS }}
+      selectPolicy: Max
+      policies:
+        - type: Percent
+          value: {{ K8S_MFE_HPA_SCALE_UP_PERCENT }}
+          periodSeconds: {{ K8S_MFE_HPA_SCALE_UP_PERIOD_SECONDS }}
+        - type: Pods
+          value: {{ K8S_MFE_HPA_SCALE_UP_PODS }}
+          periodSeconds: {{ K8S_MFE_HPA_SCALE_UP_PERIOD_SECONDS }}
+    scaleDown:
+      stabilizationWindowSeconds: {{ K8S_MFE_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS }}
+      selectPolicy: Min
+      policies:
+        - type: Percent
+          value: {{ K8S_MFE_HPA_SCALE_DOWN_PERCENT }}
+          periodSeconds: {{ K8S_MFE_HPA_SCALE_DOWN_PERIOD_SECONDS }}
+        - type: Pods
+          value: {{ K8S_MFE_HPA_SCALE_DOWN_PODS }}
+          periodSeconds: {{ K8S_MFE_HPA_SCALE_DOWN_PERIOD_SECONDS }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: caddy-hpa
+  namespace: {{ K8S_NAMESPACE }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: caddy
+  minReplicas: {{ K8S_CADDY_REPLICAS }}
+  maxReplicas: {{ K8S_CADDY_MAX_REPLICAS }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ K8S_CADDY_HPA_CPU_AVERAGE_UTILIZATION }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ K8S_CADDY_HPA_MEMORY_AVERAGE_UTILIZATION }}
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: {{ K8S_CADDY_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS }}
+      selectPolicy: Max
+      policies:
+        - type: Percent
+          value: {{ K8S_CADDY_HPA_SCALE_UP_PERCENT }}
+          periodSeconds: {{ K8S_CADDY_HPA_SCALE_UP_PERIOD_SECONDS }}
+        - type: Pods
+          value: {{ K8S_CADDY_HPA_SCALE_UP_PODS }}
+          periodSeconds: {{ K8S_CADDY_HPA_SCALE_UP_PERIOD_SECONDS }}
+    scaleDown:
+      stabilizationWindowSeconds: {{ K8S_CADDY_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS }}
+      selectPolicy: Min
+      policies:
+        - type: Percent
+          value: {{ K8S_CADDY_HPA_SCALE_DOWN_PERCENT }}
+          periodSeconds: {{ K8S_CADDY_HPA_SCALE_DOWN_PERIOD_SECONDS }}
+        - type: Pods
+          value: {{ K8S_CADDY_HPA_SCALE_DOWN_PODS }}
+          periodSeconds: {{ K8S_CADDY_HPA_SCALE_DOWN_PERIOD_SECONDS }}

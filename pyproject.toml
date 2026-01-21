@@ -9,6 +9,7 @@ authors = [
   { email = "andres@aulasneo.com" },
 ]
 license = { text = "AGPL-3.0-only" }
+license-files = []
 
 readme = {file = "README.rst", content-type = "text/x-rst"}
 requires-python = ">= 3.9"

@@ -1,7 +1,17 @@
 k8s plugin for `Tutor <https://docs.tutor.edly.io>`__
 #####################################################
 
-Helper plugin for Kubernetes deployments of Open edX
+Helper plugin for Kubernetes deployments of Open edX. It extends Tutor's K8s
+environment with deployment patches and configuration knobs for autoscaling and
+resource sizing of LMS, CMS, their workers, MFEs, and Caddy.
+
+What it does
+************
+
+- Adds Kubernetes patch templates that tweak deployments, HPAs, and resource
+  requests/limits for Tutor services.
+- Exposes ``K8S_*`` configuration settings so you can tune replicas, HPA
+  behavior, and resources without editing manifests by hand.
 
 
 Installation
@@ -18,6 +28,223 @@ Usage
 
     tutor plugins enable k8s
 
+Configuration
+*************
+
+All settings are regular Tutor config values prefixed with ``K8S_``. You can
+set them via ``tutor config save`` or by editing your Tutor config file.
+
+.. code-block:: bash
+
+    tutor config save \
+      --set K8S_LMS_REPLICAS=2 \
+      --set K8S_LMS_MAX_REPLICAS=6
+
+After changing settings, re-render or redeploy your Tutor K8s environment as
+you normally would so the updated templates are applied.
+
+Settings and defaults
+*********************
+
+.. list-table::
+   :header-rows: 1
+
+   * - Setting
+     - Default
+   * - ``K8S_VERSION``
+     - Plugin version
+   * - ``K8S_LMS_HPA_CPU_AVERAGE_UTILIZATION``
+     - ``80``
+   * - ``K8S_LMS_HPA_MEMORY_AVERAGE_UTILIZATION``
+     - ``80``
+   * - ``K8S_LMS_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS``
+     - ``0``
+   * - ``K8S_LMS_HPA_SCALE_UP_PERCENT``
+     - ``100``
+   * - ``K8S_LMS_HPA_SCALE_UP_PODS``
+     - ``4``
+   * - ``K8S_LMS_HPA_SCALE_UP_PERIOD_SECONDS``
+     - ``60``
+   * - ``K8S_LMS_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS``
+     - ``300``
+   * - ``K8S_LMS_HPA_SCALE_DOWN_PERCENT``
+     - ``10``
+   * - ``K8S_LMS_HPA_SCALE_DOWN_PODS``
+     - ``1``
+   * - ``K8S_LMS_HPA_SCALE_DOWN_PERIOD_SECONDS``
+     - ``60``
+   * - ``K8S_CMS_HPA_CPU_AVERAGE_UTILIZATION``
+     - ``80``
+   * - ``K8S_CMS_HPA_MEMORY_AVERAGE_UTILIZATION``
+     - ``80``
+   * - ``K8S_CMS_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS``
+     - ``0``
+   * - ``K8S_CMS_HPA_SCALE_UP_PERCENT``
+     - ``100``
+   * - ``K8S_CMS_HPA_SCALE_UP_PODS``
+     - ``4``
+   * - ``K8S_CMS_HPA_SCALE_UP_PERIOD_SECONDS``
+     - ``60``
+   * - ``K8S_CMS_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS``
+     - ``300``
+   * - ``K8S_CMS_HPA_SCALE_DOWN_PERCENT``
+     - ``10``
+   * - ``K8S_CMS_HPA_SCALE_DOWN_PODS``
+     - ``1``
+   * - ``K8S_CMS_HPA_SCALE_DOWN_PERIOD_SECONDS``
+     - ``60``
+   * - ``K8S_LMS_WORKER_HPA_CPU_AVERAGE_UTILIZATION``
+     - ``80``
+   * - ``K8S_LMS_WORKER_HPA_MEMORY_AVERAGE_UTILIZATION``
+     - ``80``
+   * - ``K8S_LMS_WORKER_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS``
+     - ``0``
+   * - ``K8S_LMS_WORKER_HPA_SCALE_UP_PERCENT``
+     - ``100``
+   * - ``K8S_LMS_WORKER_HPA_SCALE_UP_PODS``
+     - ``4``
+   * - ``K8S_LMS_WORKER_HPA_SCALE_UP_PERIOD_SECONDS``
+     - ``60``
+   * - ``K8S_LMS_WORKER_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS``
+     - ``300``
+   * - ``K8S_LMS_WORKER_HPA_SCALE_DOWN_PERCENT``
+     - ``10``
+   * - ``K8S_LMS_WORKER_HPA_SCALE_DOWN_PODS``
+     - ``1``
+   * - ``K8S_LMS_WORKER_HPA_SCALE_DOWN_PERIOD_SECONDS``
+     - ``60``
+   * - ``K8S_CMS_WORKER_HPA_CPU_AVERAGE_UTILIZATION``
+     - ``80``
+   * - ``K8S_CMS_WORKER_HPA_MEMORY_AVERAGE_UTILIZATION``
+     - ``80``
+   * - ``K8S_CMS_WORKER_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS``
+     - ``0``
+   * - ``K8S_CMS_WORKER_HPA_SCALE_UP_PERCENT``
+     - ``100``
+   * - ``K8S_CMS_WORKER_HPA_SCALE_UP_PODS``
+     - ``4``
+   * - ``K8S_CMS_WORKER_HPA_SCALE_UP_PERIOD_SECONDS``
+     - ``60``
+   * - ``K8S_CMS_WORKER_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS``
+     - ``300``
+   * - ``K8S_CMS_WORKER_HPA_SCALE_DOWN_PERCENT``
+     - ``10``
+   * - ``K8S_CMS_WORKER_HPA_SCALE_DOWN_PODS``
+     - ``1``
+   * - ``K8S_CMS_WORKER_HPA_SCALE_DOWN_PERIOD_SECONDS``
+     - ``60``
+   * - ``K8S_MFE_HPA_CPU_AVERAGE_UTILIZATION``
+     - ``80``
+   * - ``K8S_MFE_HPA_MEMORY_AVERAGE_UTILIZATION``
+     - ``80``
+   * - ``K8S_MFE_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS``
+     - ``0``
+   * - ``K8S_MFE_HPA_SCALE_UP_PERCENT``
+     - ``100``
+   * - ``K8S_MFE_HPA_SCALE_UP_PODS``
+     - ``4``
+   * - ``K8S_MFE_HPA_SCALE_UP_PERIOD_SECONDS``
+     - ``60``
+   * - ``K8S_MFE_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS``
+     - ``300``
+   * - ``K8S_MFE_HPA_SCALE_DOWN_PERCENT``
+     - ``10``
+   * - ``K8S_MFE_HPA_SCALE_DOWN_PODS``
+     - ``1``
+   * - ``K8S_MFE_HPA_SCALE_DOWN_PERIOD_SECONDS``
+     - ``60``
+   * - ``K8S_CADDY_HPA_CPU_AVERAGE_UTILIZATION``
+     - ``80``
+   * - ``K8S_CADDY_HPA_MEMORY_AVERAGE_UTILIZATION``
+     - ``80``
+   * - ``K8S_CADDY_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS``
+     - ``0``
+   * - ``K8S_CADDY_HPA_SCALE_UP_PERCENT``
+     - ``100``
+   * - ``K8S_CADDY_HPA_SCALE_UP_PODS``
+     - ``4``
+   * - ``K8S_CADDY_HPA_SCALE_UP_PERIOD_SECONDS``
+     - ``60``
+   * - ``K8S_CADDY_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS``
+     - ``300``
+   * - ``K8S_CADDY_HPA_SCALE_DOWN_PERCENT``
+     - ``10``
+   * - ``K8S_CADDY_HPA_SCALE_DOWN_PODS``
+     - ``1``
+   * - ``K8S_CADDY_HPA_SCALE_DOWN_PERIOD_SECONDS``
+     - ``60``
+   * - ``K8S_CMS_CPU_REQUEST``
+     - ``100m``
+   * - ``K8S_CMS_MEMORY_REQUEST``
+     - ``1Gi``
+   * - ``K8S_CMS_CPU_LIMIT``
+     - ``100m``
+   * - ``K8S_CMS_MEMORY_LIMIT``
+     - ``2Gi``
+   * - ``K8S_CMS_REPLICAS``
+     - ``1``
+   * - ``K8S_CMS_MAX_REPLICAS``
+     - ``3``
+   * - ``K8S_CMS_WORKER_CPU_REQUEST``
+     - ``100m``
+   * - ``K8S_CMS_WORKER_MEMORY_REQUEST``
+     - ``1Gi``
+   * - ``K8S_CMS_WORKER_CPU_LIMIT``
+     - ``100m``
+   * - ``K8S_CMS_WORKER_MEMORY_LIMIT``
+     - ``2Gi``
+   * - ``K8S_CMS_WORKER_REPLICAS``
+     - ``1``
+   * - ``K8S_CMS_WORKER_MAX_REPLICAS``
+     - ``3``
+   * - ``K8S_LMS_CPU_REQUEST``
+     - ``100m``
+   * - ``K8S_LMS_MEMORY_REQUEST``
+     - ``1Gi``
+   * - ``K8S_LMS_CPU_LIMIT``
+     - ``100m``
+   * - ``K8S_LMS_MEMORY_LIMIT``
+     - ``2Gi``
+   * - ``K8S_LMS_REPLICAS``
+     - ``1``
+   * - ``K8S_LMS_MAX_REPLICAS``
+     - ``3``
+   * - ``K8S_LMS_WORKER_CPU_REQUEST``
+     - ``100m``
+   * - ``K8S_LMS_WORKER_MEMORY_REQUEST``
+     - ``1Gi``
+   * - ``K8S_LMS_WORKER_CPU_LIMIT``
+     - ``100m``
+   * - ``K8S_LMS_WORKER_MEMORY_LIMIT``
+     - ``2Gi``
+   * - ``K8S_LMS_WORKER_REPLICAS``
+     - ``1``
+   * - ``K8S_LMS_WORKER_MAX_REPLICAS``
+     - ``3``
+   * - ``K8S_MFE_CPU_REQUEST``
+     - ``10m``
+   * - ``K8S_MFE_MEMORY_REQUEST``
+     - ``30Mi``
+   * - ``K8S_MFE_CPU_LIMIT``
+     - ``100m``
+   * - ``K8S_MFE_MEMORY_LIMIT``
+     - ``100Mi``
+   * - ``K8S_MFE_REPLICAS``
+     - ``1``
+   * - ``K8S_MFE_MAX_REPLICAS``
+     - ``3``
+   * - ``K8S_CADDY_CPU_REQUEST``
+     - ``10m``
+   * - ``K8S_CADDY_MEMORY_REQUEST``
+     - ``30Mi``
+   * - ``K8S_CADDY_CPU_LIMIT``
+     - ``100m``
+   * - ``K8S_CADDY_MEMORY_LIMIT``
+     - ``100Mi``
+   * - ``K8S_CADDY_REPLICAS``
+     - ``1``
+   * - ``K8S_CADDY_MAX_REPLICAS``
+     - ``3``
 
 License
 *******
