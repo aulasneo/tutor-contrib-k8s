@@ -17,6 +17,9 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         # Prefix your setting names with 'K8S_'.
         ("K8S_VERSION", __version__),
         # HPA settings
+        ("K8S_LMS_HPA_ENABLE", True),
+        ("K8S_LMS_HPA_CPU_ENABLE", False),
+        ("K8S_LMS_HPA_MEMORY_ENABLE", True),
         ("K8S_LMS_HPA_CPU_AVERAGE_UTILIZATION", 80),
         ("K8S_LMS_HPA_MEMORY_AVERAGE_UTILIZATION", 80),
         ("K8S_LMS_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS", 0),
@@ -28,6 +31,9 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("K8S_LMS_HPA_SCALE_DOWN_PODS", 1),
         ("K8S_LMS_HPA_SCALE_DOWN_PERIOD_SECONDS", 60),
         # CMS HPA settings
+        ("K8S_CMS_HPA_ENABLE", True),
+        ("K8S_CMS_HPA_CPU_ENABLE", False),
+        ("K8S_CMS_HPA_MEMORY_ENABLE", True),
         ("K8S_CMS_HPA_CPU_AVERAGE_UTILIZATION", 80),
         ("K8S_CMS_HPA_MEMORY_AVERAGE_UTILIZATION", 80),
         ("K8S_CMS_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS", 0),
@@ -39,6 +45,9 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("K8S_CMS_HPA_SCALE_DOWN_PODS", 1),
         ("K8S_CMS_HPA_SCALE_DOWN_PERIOD_SECONDS", 60),
         # LMS Worker HPA settings
+        ("K8S_LMS_WORKER_HPA_ENABLE", True),
+        ("K8S_LMS_WORKER_HPA_CPU_ENABLE", False),
+        ("K8S_LMS_WORKER_HPA_MEMORY_ENABLE", True),
         ("K8S_LMS_WORKER_HPA_CPU_AVERAGE_UTILIZATION", 80),
         ("K8S_LMS_WORKER_HPA_MEMORY_AVERAGE_UTILIZATION", 80),
         ("K8S_LMS_WORKER_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS", 0),
@@ -50,6 +59,9 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("K8S_LMS_WORKER_HPA_SCALE_DOWN_PODS", 1),
         ("K8S_LMS_WORKER_HPA_SCALE_DOWN_PERIOD_SECONDS", 60),
         # CMS Worker HPA settings
+        ("K8S_CMS_WORKER_HPA_ENABLE", True),
+        ("K8S_CMS_WORKER_HPA_CPU_ENABLE", False),
+        ("K8S_CMS_WORKER_HPA_MEMORY_ENABLE", True),
         ("K8S_CMS_WORKER_HPA_CPU_AVERAGE_UTILIZATION", 80),
         ("K8S_CMS_WORKER_HPA_MEMORY_AVERAGE_UTILIZATION", 80),
         ("K8S_CMS_WORKER_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS", 0),
@@ -61,6 +73,9 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("K8S_CMS_WORKER_HPA_SCALE_DOWN_PODS", 1),
         ("K8S_CMS_WORKER_HPA_SCALE_DOWN_PERIOD_SECONDS", 60),
         # MFE HPA settings
+        ("K8S_MFE_HPA_ENABLE", True),
+        ("K8S_MFE_HPA_CPU_ENABLE", False),
+        ("K8S_MFE_HPA_MEMORY_ENABLE", True),
         ("K8S_MFE_HPA_CPU_AVERAGE_UTILIZATION", 80),
         ("K8S_MFE_HPA_MEMORY_AVERAGE_UTILIZATION", 80),
         ("K8S_MFE_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS", 0),
@@ -72,6 +87,9 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("K8S_MFE_HPA_SCALE_DOWN_PODS", 1),
         ("K8S_MFE_HPA_SCALE_DOWN_PERIOD_SECONDS", 60),
         # Caddy HPA settings
+        ("K8S_CADDY_HPA_ENABLE", True),
+        ("K8S_CADDY_HPA_CPU_ENABLE", False),
+        ("K8S_CADDY_HPA_MEMORY_ENABLE", True),
         ("K8S_CADDY_HPA_CPU_AVERAGE_UTILIZATION", 80),
         ("K8S_CADDY_HPA_MEMORY_AVERAGE_UTILIZATION", 80),
         ("K8S_CADDY_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS", 0),
@@ -83,29 +101,29 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("K8S_CADDY_HPA_SCALE_DOWN_PODS", 1),
         ("K8S_CADDY_HPA_SCALE_DOWN_PERIOD_SECONDS", 60),
         # CMS resources
-        ("K8S_CMS_CPU_REQUEST", "100m"),
-        ("K8S_CMS_MEMORY_REQUEST", "1Gi"),
+        ("K8S_CMS_CPU_REQUEST", "20m"),
+        ("K8S_CMS_MEMORY_REQUEST", "1.5Gi"),
         ("K8S_CMS_CPU_LIMIT", "100m"),
         ("K8S_CMS_MEMORY_LIMIT", "2Gi"),
         ("K8S_CMS_REPLICAS", 1),
         ("K8S_CMS_MAX_REPLICAS", 3),
         # CMS Worker resources
-        ("K8S_CMS_WORKER_CPU_REQUEST", "100m"),
-        ("K8S_CMS_WORKER_MEMORY_REQUEST", "1Gi"),
+        ("K8S_CMS_WORKER_CPU_REQUEST", "20m"),
+        ("K8S_CMS_WORKER_MEMORY_REQUEST", "1.5Gi"),
         ("K8S_CMS_WORKER_CPU_LIMIT", "100m"),
         ("K8S_CMS_WORKER_MEMORY_LIMIT", "2Gi"),
         ("K8S_CMS_WORKER_REPLICAS", 1),
         ("K8S_CMS_WORKER_MAX_REPLICAS", 3),
         # LMS resources
-        ("K8S_LMS_CPU_REQUEST", "100m"),
-        ("K8S_LMS_MEMORY_REQUEST", "1Gi"),
+        ("K8S_LMS_CPU_REQUEST", "20m"),
+        ("K8S_LMS_MEMORY_REQUEST", "1.5Gi"),
         ("K8S_LMS_CPU_LIMIT", "100m"),
         ("K8S_LMS_MEMORY_LIMIT", "2Gi"),
         ("K8S_LMS_REPLICAS", 1),
         ("K8S_LMS_MAX_REPLICAS", 3),
         # LMS Worker resources
-        ("K8S_LMS_WORKER_CPU_REQUEST", "100m"),
-        ("K8S_LMS_WORKER_MEMORY_REQUEST", "1Gi"),
+        ("K8S_LMS_WORKER_CPU_REQUEST", "20m"),
+        ("K8S_LMS_WORKER_MEMORY_REQUEST", "1.5Gi"),
         ("K8S_LMS_WORKER_CPU_LIMIT", "100m"),
         ("K8S_LMS_WORKER_MEMORY_LIMIT", "2Gi"),
         ("K8S_LMS_WORKER_REPLICAS", 1),
@@ -119,11 +137,24 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("K8S_MFE_MAX_REPLICAS", 3),
         # Caddy resources
         ("K8S_CADDY_CPU_REQUEST", "10m"),
-        ("K8S_CADDY_MEMORY_REQUEST", "30Mi"),
+        ("K8S_CADDY_MEMORY_REQUEST", "50Mi"),
         ("K8S_CADDY_CPU_LIMIT", "100m"),
         ("K8S_CADDY_MEMORY_LIMIT", "100Mi"),
         ("K8S_CADDY_REPLICAS", 1),
         ("K8S_CADDY_MAX_REPLICAS", 3),
+        # Pod disruption budgets
+        ("K8S_CMS_PDB_ENABLE", True),
+        ("K8S_CMS_WORKER_PDB_ENABLE", True),
+        ("K8S_LMS_PDB_ENABLE", True),
+        ("K8S_LMS_WORKER_PDB_ENABLE", True),
+        ("K8S_MFE_PDB_ENABLE", True),
+        ("K8S_CADDY_PDB_ENABLE", True),
+        ("K8S_CADDY_MIN_AVAILABLE_REPLICAS", 1),
+        ("K8S_LMS_MIN_AVAILABLE_REPLICAS", 1),
+        ("K8S_LMS_WORKER_MIN_AVAILABLE_REPLICAS", 1),
+        ("K8S_CMS_MIN_AVAILABLE_REPLICAS", 1),
+        ("K8S_CMS_WORKER_MIN_AVAILABLE_REPLICAS", 1),
+        ("K8S_MFE_MIN_AVAILABLE_REPLICAS", 1),
     ]
 )
 

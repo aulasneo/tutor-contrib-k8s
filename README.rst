@@ -12,6 +12,9 @@ What it does
   requests/limits for Tutor services.
 - Exposes ``K8S_*`` configuration settings so you can tune replicas, HPA
   behavior, and resources without editing manifests by hand.
+- Includes PodDisruptionBudget resources for core services with configurable
+  availability thresholds. Each PDB can be toggled with the
+  ``K8S_*_PDB_ENABLE`` settings.
 
 
 Installation
@@ -176,7 +179,7 @@ Settings and defaults
    * - ``K8S_CMS_CPU_REQUEST``
      - ``100m``
    * - ``K8S_CMS_MEMORY_REQUEST``
-     - ``1Gi``
+     - ``1.5Gi``
    * - ``K8S_CMS_CPU_LIMIT``
      - ``100m``
    * - ``K8S_CMS_MEMORY_LIMIT``
@@ -188,7 +191,7 @@ Settings and defaults
    * - ``K8S_CMS_WORKER_CPU_REQUEST``
      - ``100m``
    * - ``K8S_CMS_WORKER_MEMORY_REQUEST``
-     - ``1Gi``
+     - ``1.5Gi``
    * - ``K8S_CMS_WORKER_CPU_LIMIT``
      - ``100m``
    * - ``K8S_CMS_WORKER_MEMORY_LIMIT``
@@ -200,7 +203,7 @@ Settings and defaults
    * - ``K8S_LMS_CPU_REQUEST``
      - ``100m``
    * - ``K8S_LMS_MEMORY_REQUEST``
-     - ``1Gi``
+     - ``1.5Gi``
    * - ``K8S_LMS_CPU_LIMIT``
      - ``100m``
    * - ``K8S_LMS_MEMORY_LIMIT``
@@ -212,7 +215,7 @@ Settings and defaults
    * - ``K8S_LMS_WORKER_CPU_REQUEST``
      - ``100m``
    * - ``K8S_LMS_WORKER_MEMORY_REQUEST``
-     - ``1Gi``
+     - ``1.5Gi``
    * - ``K8S_LMS_WORKER_CPU_LIMIT``
      - ``100m``
    * - ``K8S_LMS_WORKER_MEMORY_LIMIT``
@@ -236,7 +239,7 @@ Settings and defaults
    * - ``K8S_CADDY_CPU_REQUEST``
      - ``10m``
    * - ``K8S_CADDY_MEMORY_REQUEST``
-     - ``30Mi``
+     - ``50Mi``
    * - ``K8S_CADDY_CPU_LIMIT``
      - ``100m``
    * - ``K8S_CADDY_MEMORY_LIMIT``
@@ -245,6 +248,42 @@ Settings and defaults
      - ``1``
    * - ``K8S_CADDY_MAX_REPLICAS``
      - ``3``
+   * - ``K8S_CMS_PDB_ENABLE``
+     - ``True``
+   * - ``K8S_CMS_WORKER_PDB_ENABLE``
+     - ``True``
+   * - ``K8S_LMS_PDB_ENABLE``
+     - ``True``
+   * - ``K8S_LMS_WORKER_PDB_ENABLE``
+     - ``True``
+   * - ``K8S_MFE_PDB_ENABLE``
+     - ``True``
+   * - ``K8S_CADDY_PDB_ENABLE``
+     - ``True``
+   * - ``K8S_CADDY_MIN_AVAILABLE_REPLICAS``
+     - ``1``
+   * - ``K8S_CADDY_MAX_UNAVAILABLE_REPLICAS``
+     - ``2``
+   * - ``K8S_LMS_MIN_AVAILABLE_REPLICAS``
+     - ``1``
+   * - ``K8S_LMS_MAX_UNAVAILABLE_REPLICAS``
+     - ``2``
+   * - ``K8S_LMS_WORKER_MIN_AVAILABLE_REPLICAS``
+     - ``1``
+   * - ``K8S_LMS_WORKER_MAX_UNAVAILABLE_REPLICAS``
+     - ``2``
+   * - ``K8S_CMS_MIN_AVAILABLE_REPLICAS``
+     - ``1``
+   * - ``K8S_CMS_MAX_UNAVAILABLE_REPLICAS``
+     - ``2``
+   * - ``K8S_CMS_WORKER_MIN_AVAILABLE_REPLICAS``
+     - ``1``
+   * - ``K8S_CMS_WORKER_MAX_UNAVAILABLE_REPLICAS``
+     - ``2``
+   * - ``K8S_MFE_MIN_AVAILABLE_REPLICAS``
+     - ``1``
+   * - ``K8S_MFE_MAX_UNAVAILABLE_REPLICAS``
+     - ``2``
 
 License
 *******

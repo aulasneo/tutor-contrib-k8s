@@ -1,6 +1,13 @@
 Changelog
 #########
 
+Unreleased
+**********
+
+- Added PDB templates for core services with per-service enable toggles.
+- Documented PDB enable flags and min-available defaults in settings.
+- Synced memory request defaults to current plugin values.
+
 19.0.0 (Initial Release)
 ************************
 

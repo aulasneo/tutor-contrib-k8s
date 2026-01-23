@@ -1,3 +1,5 @@
+# Start of tutor-contrib-k8s patches
+{% if K8S_LMS_HPA_ENABLE %}
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -12,18 +14,22 @@ spec:
   minReplicas: {{ K8S_LMS_REPLICAS }}
   maxReplicas: {{ K8S_LMS_MAX_REPLICAS }}
   metrics:
+    {% if K8S_LMS_HPA_CPU_ENABLE %}
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
           averageUtilization: {{ K8S_LMS_HPA_CPU_AVERAGE_UTILIZATION }}
+    {% endif %}
+    {% if K8S_LMS_HPA_MEMORY_ENABLE %}
     - type: Resource
       resource:
         name: memory
         target:
           type: Utilization
           averageUtilization: {{ K8S_LMS_HPA_MEMORY_AVERAGE_UTILIZATION }}
+    {% endif %}
   behavior:
     scaleUp:
       stabilizationWindowSeconds: {{ K8S_LMS_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS }}
@@ -45,7 +51,9 @@ spec:
         - type: Pods
           value: {{ K8S_LMS_HPA_SCALE_DOWN_PODS }}
           periodSeconds: {{ K8S_LMS_HPA_SCALE_DOWN_PERIOD_SECONDS }}
+{% endif %}
 
+{% if K8S_LMS_WORKER_HPA_ENABLE %}
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -60,18 +68,22 @@ spec:
   minReplicas: {{ K8S_LMS_WORKER_REPLICAS }}
   maxReplicas: {{ K8S_LMS_WORKER_MAX_REPLICAS }}
   metrics:
+    {% if K8S_LMS_WORKER_HPA_CPU_ENABLE %}
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
           averageUtilization: {{ K8S_LMS_WORKER_HPA_CPU_AVERAGE_UTILIZATION }}
+    {% endif %}
+    {% if K8S_LMS_WORKER_HPA_MEMORY_ENABLE %}
     - type: Resource
       resource:
         name: memory
         target:
           type: Utilization
           averageUtilization: {{ K8S_LMS_WORKER_HPA_MEMORY_AVERAGE_UTILIZATION }}
+    {% endif %}
   behavior:
     scaleUp:
       stabilizationWindowSeconds: {{ K8S_LMS_WORKER_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS }}
@@ -93,7 +105,9 @@ spec:
         - type: Pods
           value: {{ K8S_LMS_WORKER_HPA_SCALE_DOWN_PODS }}
           periodSeconds: {{ K8S_LMS_WORKER_HPA_SCALE_DOWN_PERIOD_SECONDS }}
+{% endif %}
 
+{% if K8S_CMS_HPA_ENABLE %}
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -108,18 +122,22 @@ spec:
   minReplicas: {{ K8S_CMS_REPLICAS }}
   maxReplicas: {{ K8S_CMS_MAX_REPLICAS }}
   metrics:
+    {% if K8S_CMS_HPA_CPU_ENABLE %}
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
           averageUtilization: {{ K8S_CMS_HPA_CPU_AVERAGE_UTILIZATION }}
+    {% endif %}
+    {% if K8S_CMS_HPA_MEMORY_ENABLE %}
     - type: Resource
       resource:
         name: memory
         target:
           type: Utilization
           averageUtilization: {{ K8S_CMS_HPA_MEMORY_AVERAGE_UTILIZATION }}
+    {% endif %}
   behavior:
     scaleUp:
       stabilizationWindowSeconds: {{ K8S_CMS_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS }}
@@ -141,7 +159,9 @@ spec:
         - type: Pods
           value: {{ K8S_CMS_HPA_SCALE_DOWN_PODS }}
           periodSeconds: {{ K8S_CMS_HPA_SCALE_DOWN_PERIOD_SECONDS }}
+{% endif %}
 
+{% if K8S_CMS_WORKER_HPA_ENABLE %}
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -156,18 +176,22 @@ spec:
   minReplicas: {{ K8S_CMS_WORKER_REPLICAS }}
   maxReplicas: {{ K8S_CMS_WORKER_MAX_REPLICAS }}
   metrics:
+    {% if K8S_CMS_WORKER_HPA_CPU_ENABLE %}
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
           averageUtilization: {{ K8S_CMS_WORKER_HPA_CPU_AVERAGE_UTILIZATION }}
+    {% endif %}
+    {% if K8S_CMS_WORKER_HPA_MEMORY_ENABLE %}
     - type: Resource
       resource:
         name: memory
         target:
           type: Utilization
           averageUtilization: {{ K8S_CMS_WORKER_HPA_MEMORY_AVERAGE_UTILIZATION }}
+    {% endif %}
   behavior:
     scaleUp:
       stabilizationWindowSeconds: {{ K8S_CMS_WORKER_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS }}
@@ -189,6 +213,9 @@ spec:
         - type: Pods
           value: {{ K8S_CMS_WORKER_HPA_SCALE_DOWN_PODS }}
           periodSeconds: {{ K8S_CMS_WORKER_HPA_SCALE_DOWN_PERIOD_SECONDS }}
+{% endif %}
+
+{% if K8S_MFE_HPA_ENABLE %}
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -203,18 +230,22 @@ spec:
   minReplicas: {{ K8S_MFE_REPLICAS }}
   maxReplicas: {{ K8S_MFE_MAX_REPLICAS }}
   metrics:
+    {% if K8S_MFE_HPA_CPU_ENABLE %}
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
           averageUtilization: {{ K8S_MFE_HPA_CPU_AVERAGE_UTILIZATION }}
+    {% endif %}
+    {% if K8S_MFE_HPA_MEMORY_ENABLE %}
     - type: Resource
       resource:
         name: memory
         target:
           type: Utilization
           averageUtilization: {{ K8S_MFE_HPA_MEMORY_AVERAGE_UTILIZATION }}
+    {% endif %}
   behavior:
     scaleUp:
       stabilizationWindowSeconds: {{ K8S_MFE_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS }}
@@ -236,6 +267,9 @@ spec:
         - type: Pods
           value: {{ K8S_MFE_HPA_SCALE_DOWN_PODS }}
           periodSeconds: {{ K8S_MFE_HPA_SCALE_DOWN_PERIOD_SECONDS }}
+{% endif %}
+
+{% if K8S_CADDY_HPA_ENABLE %}
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -250,18 +284,22 @@ spec:
   minReplicas: {{ K8S_CADDY_REPLICAS }}
   maxReplicas: {{ K8S_CADDY_MAX_REPLICAS }}
   metrics:
+    {% if K8S_CADDY_HPA_CPU_ENABLE %}
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
           averageUtilization: {{ K8S_CADDY_HPA_CPU_AVERAGE_UTILIZATION }}
+    {% endif %}
+    {% if K8S_CADDY_HPA_MEMORY_ENABLE %}
     - type: Resource
       resource:
         name: memory
         target:
           type: Utilization
           averageUtilization: {{ K8S_CADDY_HPA_MEMORY_AVERAGE_UTILIZATION }}
+    {% endif %}
   behavior:
     scaleUp:
       stabilizationWindowSeconds: {{ K8S_CADDY_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS }}
@@ -283,3 +321,90 @@ spec:
         - type: Pods
           value: {{ K8S_CADDY_HPA_SCALE_DOWN_PODS }}
           periodSeconds: {{ K8S_CADDY_HPA_SCALE_DOWN_PERIOD_SECONDS }}
+{% endif %}
+
+{% if K8S_CADDY_PDB_ENABLE %}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: caddy-pdb
+  namespace: {{ K8S_NAMESPACE }}
+spec:
+  minAvailable: {{ K8S_CADDY_MIN_AVAILABLE_REPLICAS }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: caddy
+{% endif %}
+
+{% if K8S_LMS_PDB_ENABLE %}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: lms-pdb
+  namespace: {{ K8S_NAMESPACE }}
+spec:
+  minAvailable: {{ K8S_LMS_MIN_AVAILABLE_REPLICAS }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: lms
+{% endif %}
+
+{% if K8S_LMS_WORKER_PDB_ENABLE %}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: lms-worker-pdb
+  namespace: {{ K8S_NAMESPACE }}
+spec:
+  minAvailable: {{ K8S_LMS_WORKER_MIN_AVAILABLE_REPLICAS }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: lms-worker
+{% endif %}
+
+{% if K8S_CMS_PDB_ENABLE %}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: cms-pdb
+  namespace: {{ K8S_NAMESPACE }}
+spec:
+  minAvailable: {{ K8S_CMS_MIN_AVAILABLE_REPLICAS }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cms
+{% endif %}
+
+{% if K8S_CMS_WORKER_PDB_ENABLE %}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: cms-worker-pdb
+  namespace: {{ K8S_NAMESPACE }}
+spec:
+  minAvailable: {{ K8S_CMS_WORKER_MIN_AVAILABLE_REPLICAS }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cms-worker
+{% endif %}
+
+{% if K8S_MFE_PDB_ENABLE %}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: mfe-pdb
+  namespace: {{ K8S_NAMESPACE }}
+spec:
+  minAvailable: {{ K8S_MFE_MIN_AVAILABLE_REPLICAS }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mfe
+{% endif %}
+
+# End of tutor-contrib-k8s patches
