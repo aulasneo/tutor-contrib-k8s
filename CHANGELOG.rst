@@ -1,7 +1,7 @@
 Changelog
 #########
 
-Unreleased
+Version 19.1.0 (2026-01-26)
 **********
 
 - Added PDB templates for core services with per-service enable toggles.
