@@ -407,4 +407,178 @@ spec:
       app.kubernetes.io/name: mfe
 {% endif %}
 
+{% if K8S_CADDY_VPA_ENABLE %}
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: caddy-vpa
+  namespace: {{ K8S_NAMESPACE }}
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: caddy
+  updatePolicy:
+    updateMode: {{ K8S_VPA_UPDATE_MODE }}
+  resourcePolicy:
+    containerPolicies:
+      - containerName: "*"
+        controlledResources:
+{% for resource in K8S_VPA_CONTROLLED_RESOURCES %}
+          - {{ resource }}
+{% endfor %}
+        minAllowed:
+          cpu: {{ K8S_CADDY_VPA_MIN_ALLOWED_CPU }}
+          memory: {{ K8S_CADDY_VPA_MIN_ALLOWED_MEMORY }}
+        maxAllowed:
+          cpu: {{ K8S_CADDY_VPA_MAX_ALLOWED_CPU }}
+          memory: {{ K8S_CADDY_VPA_MAX_ALLOWED_MEMORY }}
+{% endif %}
+
+{% if K8S_LMS_VPA_ENABLE %}
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: lms-vpa
+  namespace: {{ K8S_NAMESPACE }}
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: lms
+  updatePolicy:
+    updateMode: {{ K8S_VPA_UPDATE_MODE }}
+  resourcePolicy:
+    containerPolicies:
+      - containerName: "*"
+        controlledResources:
+{% for resource in K8S_VPA_CONTROLLED_RESOURCES %}
+          - {{ resource }}
+{% endfor %}
+        minAllowed:
+          cpu: {{ K8S_LMS_VPA_MIN_ALLOWED_CPU }}
+          memory: {{ K8S_LMS_VPA_MIN_ALLOWED_MEMORY }}
+        maxAllowed:
+          cpu: {{ K8S_LMS_VPA_MAX_ALLOWED_CPU }}
+          memory: {{ K8S_LMS_VPA_MAX_ALLOWED_MEMORY }}
+{% endif %}
+
+{% if K8S_LMS_WORKER_VPA_ENABLE %}
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: lms-worker-vpa
+  namespace: {{ K8S_NAMESPACE }}
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: lms-worker
+  updatePolicy:
+    updateMode: {{ K8S_VPA_UPDATE_MODE }}
+  resourcePolicy:
+    containerPolicies:
+      - containerName: "*"
+        controlledResources:
+{% for resource in K8S_VPA_CONTROLLED_RESOURCES %}
+          - {{ resource }}
+{% endfor %}
+        minAllowed:
+          cpu: {{ K8S_LMS_WORKER_VPA_MIN_ALLOWED_CPU }}
+          memory: {{ K8S_LMS_WORKER_VPA_MIN_ALLOWED_MEMORY }}
+        maxAllowed:
+          cpu: {{ K8S_LMS_WORKER_VPA_MAX_ALLOWED_CPU }}
+          memory: {{ K8S_LMS_WORKER_VPA_MAX_ALLOWED_MEMORY }}
+{% endif %}
+
+{% if K8S_CMS_VPA_ENABLE %}
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: cms-vpa
+  namespace: {{ K8S_NAMESPACE }}
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: cms
+  updatePolicy:
+    updateMode: {{ K8S_VPA_UPDATE_MODE }}
+  resourcePolicy:
+    containerPolicies:
+      - containerName: "*"
+        controlledResources:
+{% for resource in K8S_VPA_CONTROLLED_RESOURCES %}
+          - {{ resource }}
+{% endfor %}
+        minAllowed:
+          cpu: {{ K8S_CMS_VPA_MIN_ALLOWED_CPU }}
+          memory: {{ K8S_CMS_VPA_MIN_ALLOWED_MEMORY }}
+        maxAllowed:
+          cpu: {{ K8S_CMS_VPA_MAX_ALLOWED_CPU }}
+          memory: {{ K8S_CMS_VPA_MAX_ALLOWED_MEMORY }}
+{% endif %}
+
+{% if K8S_CMS_WORKER_VPA_ENABLE %}
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: cms-worker-vpa
+  namespace: {{ K8S_NAMESPACE }}
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: cms-worker
+  updatePolicy:
+    updateMode: {{ K8S_VPA_UPDATE_MODE }}
+  resourcePolicy:
+    containerPolicies:
+      - containerName: "*"
+        controlledResources:
+{% for resource in K8S_VPA_CONTROLLED_RESOURCES %}
+          - {{ resource }}
+{% endfor %}
+        minAllowed:
+          cpu: {{ K8S_CMS_WORKER_VPA_MIN_ALLOWED_CPU }}
+          memory: {{ K8S_CMS_WORKER_VPA_MIN_ALLOWED_MEMORY }}
+        maxAllowed:
+          cpu: {{ K8S_CMS_WORKER_VPA_MAX_ALLOWED_CPU }}
+          memory: {{ K8S_CMS_WORKER_VPA_MAX_ALLOWED_MEMORY }}
+{% endif %}
+
+{% if K8S_MFE_VPA_ENABLE %}
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: mfe-vpa
+  namespace: {{ K8S_NAMESPACE }}
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: mfe
+  updatePolicy:
+    updateMode: {{ K8S_VPA_UPDATE_MODE }}
+  resourcePolicy:
+    containerPolicies:
+      - containerName: "*"
+        controlledResources:
+{% for resource in K8S_VPA_CONTROLLED_RESOURCES %}
+          - {{ resource }}
+{% endfor %}
+        minAllowed:
+          cpu: {{ K8S_MFE_VPA_MIN_ALLOWED_CPU }}
+          memory: {{ K8S_MFE_VPA_MIN_ALLOWED_MEMORY }}
+        maxAllowed:
+          cpu: {{ K8S_MFE_VPA_MAX_ALLOWED_CPU }}
+          memory: {{ K8S_MFE_VPA_MAX_ALLOWED_MEMORY }}
+{% endif %}
+
 # End of tutor-contrib-k8s patches
