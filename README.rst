@@ -59,6 +59,101 @@ you normally would so the updated templates are applied.
 Settings and defaults
 *********************
 
+Resource settings
+=================
+
+.. list-table::
+   :header-rows: 1
+
+   * - Setting suffix
+     - Description
+   * - ``CPU_REQUEST``
+     - Amount of CPU reserved for the pod.
+   * - ``MEMORY_REQUEST``
+     - Amount of memory reserved for the pod.
+   * - ``CPU_LIMIT``
+     - Maximum CPU the pod can use; usage above this is throttled.
+   * - ``MEMORY_LIMIT``
+     - Maximum memory allowed; exceeding this leads to an OOM kill.
+   * - ``REPLICAS``
+     - Baseline number of replicas when autoscaling is disabled.
+   * - ``MAX_REPLICAS``
+     - Upper bound for autoscaling.
+
+HPA settings
+============
+
+.. list-table::
+   :header-rows: 1
+
+   * - Setting suffix
+     - Description
+   * - ``HPA_ENABLE``
+     - Enables HPA creation for the service.
+   * - ``HPA_CPU_ENABLE``
+     - Enables CPU utilization metrics in the HPA.
+   * - ``HPA_MEMORY_ENABLE``
+     - Enables memory utilization metrics in the HPA.
+   * - ``HPA_CPU_AVERAGE_UTILIZATION``
+     - Target average CPU utilization percentage.
+   * - ``HPA_MEMORY_AVERAGE_UTILIZATION``
+     - Target average memory utilization percentage.
+   * - ``HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS``
+     - Window to stabilize scale-up recommendations.
+   * - ``HPA_SCALE_UP_PERCENT``
+     - Max scale-up change as a percentage per period.
+   * - ``HPA_SCALE_UP_PODS``
+     - Max scale-up change as a number of pods per period.
+   * - ``HPA_SCALE_UP_PERIOD_SECONDS``
+     - Period for scale-up policies in seconds.
+   * - ``HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS``
+     - Window to stabilize scale-down recommendations.
+   * - ``HPA_SCALE_DOWN_PERCENT``
+     - Max scale-down change as a percentage per period.
+   * - ``HPA_SCALE_DOWN_PODS``
+     - Max scale-down change as a number of pods per period.
+   * - ``HPA_SCALE_DOWN_PERIOD_SECONDS``
+     - Period for scale-down policies in seconds.
+
+PDB settings
+============
+
+.. list-table::
+   :header-rows: 1
+
+   * - Setting suffix
+     - Description
+   * - ``PDB_ENABLE``
+     - Enables PodDisruptionBudget creation for the service.
+   * - ``MIN_AVAILABLE_REPLICAS``
+     - Minimum number of replicas that must remain available.
+
+VPA settings
+============
+
+.. list-table::
+   :header-rows: 1
+
+   * - Setting suffix
+     - Description
+   * - ``VPA_ENABLE``
+     - Enables VerticalPodAutoscaler creation for the service.
+   * - ``VPA_MIN_ALLOWED_CPU``
+     - Minimum CPU the VPA can recommend.
+   * - ``VPA_MAX_ALLOWED_CPU``
+     - Maximum CPU the VPA can recommend.
+   * - ``VPA_MIN_ALLOWED_MEMORY``
+     - Minimum memory the VPA can recommend.
+   * - ``VPA_MAX_ALLOWED_MEMORY``
+     - Maximum memory the VPA can recommend.
+   * - ``VPA_CONTROLLED_RESOURCES``
+     - Resource types controlled by VPA (``cpu`` and/or ``memory``).
+   * - ``VPA_UPDATE_MODE``
+     - Update mode for applying recommendations (``Off``, ``Initial``, ``Auto``).
+
+Default settings
+================
+
 .. list-table::
    :header-rows: 1
 
