@@ -15,14 +15,24 @@ What it does
 - Includes PodDisruptionBudget resources for core services with configurable
   availability thresholds. Each PDB can be toggled with the
   ``K8S_*_PDB_ENABLE`` settings.
+- Adds VerticalPodAutoscaler templates for core services with configurable
+  update mode, min/max allowed resources, and controlled resources.
 
 
 Installation
 ************
 
+From Github:
+
 .. code-block:: bash
 
     pip install git+https://github.com/aulasneo/tutor-contrib-k8s.git
+
+From PyPI:
+
+.. code-block:: bash
+
+    pip install tutor-contrib-k8s
 
 Usage
 *****
@@ -262,28 +272,80 @@ Settings and defaults
      - ``True``
    * - ``K8S_CADDY_MIN_AVAILABLE_REPLICAS``
      - ``1``
-   * - ``K8S_CADDY_MAX_UNAVAILABLE_REPLICAS``
-     - ``2``
    * - ``K8S_LMS_MIN_AVAILABLE_REPLICAS``
      - ``1``
-   * - ``K8S_LMS_MAX_UNAVAILABLE_REPLICAS``
-     - ``2``
    * - ``K8S_LMS_WORKER_MIN_AVAILABLE_REPLICAS``
      - ``1``
-   * - ``K8S_LMS_WORKER_MAX_UNAVAILABLE_REPLICAS``
-     - ``2``
    * - ``K8S_CMS_MIN_AVAILABLE_REPLICAS``
      - ``1``
-   * - ``K8S_CMS_MAX_UNAVAILABLE_REPLICAS``
-     - ``2``
    * - ``K8S_CMS_WORKER_MIN_AVAILABLE_REPLICAS``
      - ``1``
-   * - ``K8S_CMS_WORKER_MAX_UNAVAILABLE_REPLICAS``
-     - ``2``
    * - ``K8S_MFE_MIN_AVAILABLE_REPLICAS``
      - ``1``
-   * - ``K8S_MFE_MAX_UNAVAILABLE_REPLICAS``
-     - ``2``
+   * - ``K8S_VPA_CONTROLLED_RESOURCES``
+     - ``["cpu"]``
+   * - ``K8S_VPA_UPDATE_MODE``
+     - ``Off``
+   * - ``K8S_CMS_VPA_ENABLE``
+     - ``False``
+   * - ``K8S_CMS_VPA_MIN_ALLOWED_CPU``
+     - ``20m``
+   * - ``K8S_CMS_VPA_MAX_ALLOWED_CPU``
+     - ``100m``
+   * - ``K8S_CMS_VPA_MIN_ALLOWED_MEMORY``
+     - ``1.5Gi``
+   * - ``K8S_CMS_VPA_MAX_ALLOWED_MEMORY``
+     - ``2Gi``
+   * - ``K8S_CMS_WORKER_VPA_ENABLE``
+     - ``False``
+   * - ``K8S_CMS_WORKER_VPA_MIN_ALLOWED_CPU``
+     - ``20m``
+   * - ``K8S_CMS_WORKER_VPA_MAX_ALLOWED_CPU``
+     - ``100m``
+   * - ``K8S_CMS_WORKER_VPA_MIN_ALLOWED_MEMORY``
+     - ``1.5Gi``
+   * - ``K8S_CMS_WORKER_VPA_MAX_ALLOWED_MEMORY``
+     - ``2Gi``
+   * - ``K8S_LMS_VPA_ENABLE``
+     - ``False``
+   * - ``K8S_LMS_VPA_MIN_ALLOWED_CPU``
+     - ``20m``
+   * - ``K8S_LMS_VPA_MAX_ALLOWED_CPU``
+     - ``100m``
+   * - ``K8S_LMS_VPA_MIN_ALLOWED_MEMORY``
+     - ``1.5Gi``
+   * - ``K8S_LMS_VPA_MAX_ALLOWED_MEMORY``
+     - ``2Gi``
+   * - ``K8S_LMS_WORKER_VPA_ENABLE``
+     - ``False``
+   * - ``K8S_LMS_WORKER_VPA_MIN_ALLOWED_CPU``
+     - ``20m``
+   * - ``K8S_LMS_WORKER_VPA_MAX_ALLOWED_CPU``
+     - ``100m``
+   * - ``K8S_LMS_WORKER_VPA_MIN_ALLOWED_MEMORY``
+     - ``1.5Gi``
+   * - ``K8S_LMS_WORKER_VPA_MAX_ALLOWED_MEMORY``
+     - ``2Gi``
+   * - ``K8S_MFE_VPA_ENABLE``
+     - ``False``
+   * - ``K8S_MFE_VPA_MIN_ALLOWED_CPU``
+     - ``10m``
+   * - ``K8S_MFE_VPA_MAX_ALLOWED_CPU``
+     - ``100m``
+   * - ``K8S_MFE_VPA_MIN_ALLOWED_MEMORY``
+     - ``30Mi``
+   * - ``K8S_MFE_VPA_MAX_ALLOWED_MEMORY``
+     - ``100Mi``
+   * - ``K8S_CADDY_VPA_ENABLE``
+     - ``False``
+   * - ``K8S_CADDY_VPA_MIN_ALLOWED_CPU``
+     - ``10m``
+   * - ``K8S_CADDY_VPA_MAX_ALLOWED_CPU``
+     - ``100m``
+   * - ``K8S_CADDY_VPA_MIN_ALLOWED_MEMORY``
+     - ``50Mi``
+   * - ``K8S_CADDY_VPA_MAX_ALLOWED_MEMORY``
+     - ``100Mi``
 
 License
 *******

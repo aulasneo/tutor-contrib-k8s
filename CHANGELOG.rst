@@ -7,6 +7,8 @@ Unreleased
 - Added PDB templates for core services with per-service enable toggles.
 - Documented PDB enable flags and min-available defaults in settings.
 - Synced memory request defaults to current plugin values.
+- Added VPA templates with per-service enable flags, min/max resource bounds,
+  controlled resources, and update mode settings.
 
 19.0.0 (Initial Release)
 ************************
