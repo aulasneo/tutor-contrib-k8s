@@ -28,7 +28,7 @@ classifiers = [
 
 ]
 dependencies = [
-    "tutor>=19.0.0,<20.0.0",
+    "tutor>=20.0.0,<21.0.0",
 ]
 
 # These fields will be set by hatch_build.py
@@ -36,7 +36,7 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 dev = [
-    "tutor[dev]>=19.0.0,<20.0.0",
+    "tutor[dev]>=20.0.0,<21.0.0",
     "ruff",
 ]
 

@@ -1,6 +1,13 @@
 Changelog
 #########
 
+Unreleased
+***************************
+
+- Added Tutor 20.x / Open edX Teak compatibility to package dependencies.
+- Prevented invalid HPA manifests when both CPU and memory metrics are disabled.
+- Synced documentation defaults with the current plugin configuration values.
+
 Version 19.1.0 (2026-01-26)
 ***************************
 

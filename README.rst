@@ -5,6 +5,8 @@ Helper plugin for Kubernetes deployments of Open edX. It extends Tutor's K8s
 environment with deployment patches and configuration knobs for autoscaling and
 resource sizing of LMS, CMS, their workers, MFEs, and Caddy.
 
+This release targets Open edX Teak with Tutor 20.x.
+
 What it does
 ************
 
@@ -282,7 +284,7 @@ Default settings
    * - ``K8S_CADDY_HPA_SCALE_DOWN_PERIOD_SECONDS``
      - ``60``
    * - ``K8S_CMS_CPU_REQUEST``
-     - ``100m``
+     - ``20m``
    * - ``K8S_CMS_MEMORY_REQUEST``
      - ``1.5Gi``
    * - ``K8S_CMS_CPU_LIMIT``
@@ -294,7 +296,7 @@ Default settings
    * - ``K8S_CMS_MAX_REPLICAS``
      - ``3``
    * - ``K8S_CMS_WORKER_CPU_REQUEST``
-     - ``100m``
+     - ``20m``
    * - ``K8S_CMS_WORKER_MEMORY_REQUEST``
      - ``1.5Gi``
    * - ``K8S_CMS_WORKER_CPU_LIMIT``
@@ -306,7 +308,7 @@ Default settings
    * - ``K8S_CMS_WORKER_MAX_REPLICAS``
      - ``3``
    * - ``K8S_LMS_CPU_REQUEST``
-     - ``100m``
+     - ``20m``
    * - ``K8S_LMS_MEMORY_REQUEST``
      - ``1.5Gi``
    * - ``K8S_LMS_CPU_LIMIT``
@@ -318,7 +320,7 @@ Default settings
    * - ``K8S_LMS_MAX_REPLICAS``
      - ``3``
    * - ``K8S_LMS_WORKER_CPU_REQUEST``
-     - ``100m``
+     - ``20m``
    * - ``K8S_LMS_WORKER_MEMORY_REQUEST``
      - ``1.5Gi``
    * - ``K8S_LMS_WORKER_CPU_LIMIT``
@@ -382,47 +384,47 @@ Default settings
    * - ``K8S_VPA_UPDATE_MODE``
      - ``Off``
    * - ``K8S_CMS_VPA_ENABLE``
-     - ``False``
+     - ``True``
    * - ``K8S_CMS_VPA_MIN_ALLOWED_CPU``
-     - ``20m``
+     - ``10m``
    * - ``K8S_CMS_VPA_MAX_ALLOWED_CPU``
-     - ``100m``
+     - ``1000m``
    * - ``K8S_CMS_VPA_MIN_ALLOWED_MEMORY``
      - ``1.5Gi``
    * - ``K8S_CMS_VPA_MAX_ALLOWED_MEMORY``
-     - ``2Gi``
+     - ``4Gi``
    * - ``K8S_CMS_WORKER_VPA_ENABLE``
-     - ``False``
+     - ``True``
    * - ``K8S_CMS_WORKER_VPA_MIN_ALLOWED_CPU``
-     - ``20m``
+     - ``10m``
    * - ``K8S_CMS_WORKER_VPA_MAX_ALLOWED_CPU``
-     - ``100m``
+     - ``1000m``
    * - ``K8S_CMS_WORKER_VPA_MIN_ALLOWED_MEMORY``
      - ``1.5Gi``
    * - ``K8S_CMS_WORKER_VPA_MAX_ALLOWED_MEMORY``
-     - ``2Gi``
+     - ``4Gi``
    * - ``K8S_LMS_VPA_ENABLE``
-     - ``False``
+     - ``True``
    * - ``K8S_LMS_VPA_MIN_ALLOWED_CPU``
-     - ``20m``
+     - ``10m``
    * - ``K8S_LMS_VPA_MAX_ALLOWED_CPU``
-     - ``100m``
+     - ``1000m``
    * - ``K8S_LMS_VPA_MIN_ALLOWED_MEMORY``
      - ``1.5Gi``
    * - ``K8S_LMS_VPA_MAX_ALLOWED_MEMORY``
-     - ``2Gi``
+     - ``4Gi``
    * - ``K8S_LMS_WORKER_VPA_ENABLE``
-     - ``False``
+     - ``True``
    * - ``K8S_LMS_WORKER_VPA_MIN_ALLOWED_CPU``
-     - ``20m``
+     - ``10m``
    * - ``K8S_LMS_WORKER_VPA_MAX_ALLOWED_CPU``
-     - ``100m``
+     - ``1000m``
    * - ``K8S_LMS_WORKER_VPA_MIN_ALLOWED_MEMORY``
      - ``1.5Gi``
    * - ``K8S_LMS_WORKER_VPA_MAX_ALLOWED_MEMORY``
-     - ``2Gi``
+     - ``4Gi``
    * - ``K8S_MFE_VPA_ENABLE``
-     - ``False``
+     - ``True``
    * - ``K8S_MFE_VPA_MIN_ALLOWED_CPU``
      - ``10m``
    * - ``K8S_MFE_VPA_MAX_ALLOWED_CPU``
@@ -432,7 +434,7 @@ Default settings
    * - ``K8S_MFE_VPA_MAX_ALLOWED_MEMORY``
      - ``100Mi``
    * - ``K8S_CADDY_VPA_ENABLE``
-     - ``False``
+     - ``True``
    * - ``K8S_CADDY_VPA_MIN_ALLOWED_CPU``
      - ``10m``
    * - ``K8S_CADDY_VPA_MAX_ALLOWED_CPU``

@@ -1,5 +1,6 @@
 # Start of tutor-contrib-k8s patches
-{% if K8S_LMS_HPA_ENABLE %}
+{% set K8S_LMS_HPA_HAS_METRICS = K8S_LMS_HPA_CPU_ENABLE or K8S_LMS_HPA_MEMORY_ENABLE %}
+{% if K8S_LMS_HPA_ENABLE and K8S_LMS_HPA_HAS_METRICS %}
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -53,7 +54,8 @@ spec:
           periodSeconds: {{ K8S_LMS_HPA_SCALE_DOWN_PERIOD_SECONDS }}
 {% endif %}
 
-{% if K8S_LMS_WORKER_HPA_ENABLE %}
+{% set K8S_LMS_WORKER_HPA_HAS_METRICS = K8S_LMS_WORKER_HPA_CPU_ENABLE or K8S_LMS_WORKER_HPA_MEMORY_ENABLE %}
+{% if K8S_LMS_WORKER_HPA_ENABLE and K8S_LMS_WORKER_HPA_HAS_METRICS %}
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -107,7 +109,8 @@ spec:
           periodSeconds: {{ K8S_LMS_WORKER_HPA_SCALE_DOWN_PERIOD_SECONDS }}
 {% endif %}
 
-{% if K8S_CMS_HPA_ENABLE %}
+{% set K8S_CMS_HPA_HAS_METRICS = K8S_CMS_HPA_CPU_ENABLE or K8S_CMS_HPA_MEMORY_ENABLE %}
+{% if K8S_CMS_HPA_ENABLE and K8S_CMS_HPA_HAS_METRICS %}
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -161,7 +164,8 @@ spec:
           periodSeconds: {{ K8S_CMS_HPA_SCALE_DOWN_PERIOD_SECONDS }}
 {% endif %}
 
-{% if K8S_CMS_WORKER_HPA_ENABLE %}
+{% set K8S_CMS_WORKER_HPA_HAS_METRICS = K8S_CMS_WORKER_HPA_CPU_ENABLE or K8S_CMS_WORKER_HPA_MEMORY_ENABLE %}
+{% if K8S_CMS_WORKER_HPA_ENABLE and K8S_CMS_WORKER_HPA_HAS_METRICS %}
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -215,7 +219,8 @@ spec:
           periodSeconds: {{ K8S_CMS_WORKER_HPA_SCALE_DOWN_PERIOD_SECONDS }}
 {% endif %}
 
-{% if K8S_MFE_HPA_ENABLE %}
+{% set K8S_MFE_HPA_HAS_METRICS = K8S_MFE_HPA_CPU_ENABLE or K8S_MFE_HPA_MEMORY_ENABLE %}
+{% if K8S_MFE_HPA_ENABLE and K8S_MFE_HPA_HAS_METRICS %}
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -269,7 +274,8 @@ spec:
           periodSeconds: {{ K8S_MFE_HPA_SCALE_DOWN_PERIOD_SECONDS }}
 {% endif %}
 
-{% if K8S_CADDY_HPA_ENABLE %}
+{% set K8S_CADDY_HPA_HAS_METRICS = K8S_CADDY_HPA_CPU_ENABLE or K8S_CADDY_HPA_MEMORY_ENABLE %}
+{% if K8S_CADDY_HPA_ENABLE and K8S_CADDY_HPA_HAS_METRICS %}
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
