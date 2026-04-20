@@ -3,9 +3,10 @@
 ## Unreleased
 - feat: add local development automation with a branding-aligned `Makefile` and dev requirements files
 - feat: replace the legacy CI setup with branding-aligned GitHub Actions test and publish workflows
-- ref: align modern build metadata across `pyproject.toml` and `setup.py`
+- ref: remove the legacy `setup.py` in favor of `pyproject.toml`
 - breaking: require Python 3.11 or newer
 - chore: ignore generated Tutor `config.yml` and `env/` artifacts from local test runs
+- feat: target Open edX Ulmo with Tutor 21.x
 
 ## Version 20.0.0 (2026-03-17)
 - feat: target Open edX Teak with Tutor 20.x
