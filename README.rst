@@ -5,7 +5,7 @@ Helper plugin for Kubernetes deployments of Open edX. It extends Tutor's K8s
 environment with deployment patches and configuration knobs for autoscaling and
 resource sizing of LMS, CMS, their workers, MFEs, and Caddy.
 
-This release targets Open edX Teak with Tutor 20.x.
+This release targets Open edX Ulmo with Tutor 21.x.
 
 What it does
 ************
