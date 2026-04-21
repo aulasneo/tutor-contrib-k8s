@@ -1,6 +1,6 @@
 # Change log
 
-## Unreleased
+## Version 21.0.0 (2026-04-21)
 - feat: add local development automation with a branding-aligned `Makefile` and dev requirements files
 - feat: replace the legacy CI setup with branding-aligned GitHub Actions test and publish workflows
 - ref: remove the legacy `setup.py` in favor of `pyproject.toml`
