@@ -2,6 +2,7 @@
 .PHONY: docs
 
 PYTHON ?= python3
+TWINE = $(PYTHON) -m twine
 TUTOR ?= $(if $(VIRTUAL_ENV),$(VIRTUAL_ENV)/bin/tutor,tutor)
 TUTOR_CMD = $(TUTOR) -r $(CURDIR)
 SRC_DIRS = ./tutork8s
@@ -21,7 +22,7 @@ build: clean ## Build the package
 	$(PYTHON) -m build
 
 dist: ## Upload package to PyPI
-	twine upload dist/*
+	$(TWINE) upload dist/*
 
 # Warning: These checks are not necessarily run on every PR.
 test: test-lint test-types test-format test-dist test-tutor ## Run some static checks.
@@ -36,7 +37,7 @@ test-types: ## Run type checks.
 	mypy --exclude=templates --ignore-missing-imports --implicit-reexport --strict ${SRC_DIRS}
 
 test-dist: build ## Check the distribution files
-	twine check dist/*
+	$(TWINE) check dist/*
 
 test-tutor:
 	rm -rf config.yml env/

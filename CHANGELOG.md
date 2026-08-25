@@ -1,6 +1,6 @@
 # Change log
 
-## Unreleased
+## Version 21.1.0 (2026-08-25)
 - feat: Implement readiness and liveness probes to avoid sending traffic to not-ready pods.
 
 ## Version 21.0.0 (2026-04-21)

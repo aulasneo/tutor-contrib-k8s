@@ -30,7 +30,7 @@ Issues = "https://github.com/aulasneo/tutor-contrib-k8s/issues"
 k8s = "tutork8s.plugin"
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.24.0"]
 build-backend = "hatchling.build"
 
 [tool.hatch.version]

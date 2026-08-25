@@ -94,7 +94,7 @@ rich==15.0.0
     # via twine
 tomlkit==0.14.0
     # via pylint
-twine==6.2.0
+twine==7.0.0
     # via -r requirements.in
 urllib3==2.6.3
     # via
