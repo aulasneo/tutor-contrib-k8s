@@ -1,0 +1,36 @@
+pyproject.toml
+  h_67430f944e00e2 33
+requirements.txt
+  s_a4f54a845deb4c::t_b9dcf693733c47 97
+Makefile
+  s_a4f54a845deb4c::t_e674efe933837a 5,25,40
+tutork8s/__about__.py
+  h_67430f944e00e2 1
+requirements.in
+  s_a4f54a845deb4c::t_b9dcf693733c47 3
+.bumpversion.cfg
+  h_67430f944e00e2 5
+CHANGELOG.md
+  h_67430f944e00e2 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "0d79ced369407d8052a51e4668d0669784355aec",
+  "prompts": {},
+  "humans": {
+    "h_67430f944e00e2": {
+      "author": "Andrés González <andres@aulasneo.com>"
+    }
+  },
+  "sessions": {
+    "s_a4f54a845deb4c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03a2d-8990-7161-861e-f91b897fd945",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": null
+    }
+  }
+}
