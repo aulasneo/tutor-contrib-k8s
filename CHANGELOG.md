@@ -1,5 +1,8 @@
 # Change log
 
+## Unreleased
+- feat: Implement readiness and liveness probes to avoid sending traffic to not-ready pods.
+
 ## Version 21.0.0 (2026-04-21)
 - feat: add local development automation with a branding-aligned `Makefile` and dev requirements files
 - feat: replace the legacy CI setup with branding-aligned GitHub Actions test and publish workflows

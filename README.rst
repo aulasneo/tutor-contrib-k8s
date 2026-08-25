@@ -19,6 +19,11 @@ What it does
   ``K8S_*_PDB_ENABLE`` settings.
 - Adds VerticalPodAutoscaler templates for core services with configurable
   update mode, min/max allowed resources, and controlled resources.
+- Adds startup, readiness, and liveness probes to the LMS and CMS deployments.
+  Startup and readiness call the Open edX ``/heartbeat`` endpoint with the
+  required internal ``Host`` header, preventing services from routing requests
+  to pods before Open edX is ready. Liveness uses a TCP check so that a shared
+  database outage cannot restart every replica at once.
 
 
 Installation
@@ -57,6 +62,36 @@ set them via ``tutor config save`` or by editing your Tutor config file.
 
 After changing settings, re-render or redeploy your Tutor K8s environment as
 you normally would so the updated templates are applied.
+
+Health probes
+=============
+
+LMS and CMS health probes are enabled by default with
+``K8S_OPENEDX_HEALTH_PROBES_ENABLE``. Startup and readiness probes call
+``/heartbeat`` on port 8000; startup probes allow up to 10 minutes for Open edX
+to initialize, and readiness probes prevent Service traffic until the
+application health check succeeds.
+
+Liveness uses a TCP check on port 8000 rather than ``/heartbeat``. This is
+deliberate. ``/heartbeat`` verifies MySQL and the modulestore, which every pod
+shares, so a brief database outage would fail liveness on all replicas
+simultaneously and Kubernetes would restart the whole deployment — turning a
+short dependency blip into a prolonged outage, since each replacement pod must
+pay full Open edX startup time. Liveness should only detect a wedged process;
+dependency health belongs on readiness, which sheds traffic without destroying
+the pod and recovers the moment the dependency returns.
+
+The probe timing settings are:
+
+- ``K8S_OPENEDX_STARTUP_PROBE_PERIOD_SECONDS``
+- ``K8S_OPENEDX_STARTUP_PROBE_TIMEOUT_SECONDS``
+- ``K8S_OPENEDX_STARTUP_PROBE_FAILURE_THRESHOLD``
+- ``K8S_OPENEDX_READINESS_PROBE_PERIOD_SECONDS``
+- ``K8S_OPENEDX_READINESS_PROBE_TIMEOUT_SECONDS``
+- ``K8S_OPENEDX_READINESS_PROBE_FAILURE_THRESHOLD``
+- ``K8S_OPENEDX_LIVENESS_PROBE_PERIOD_SECONDS``
+- ``K8S_OPENEDX_LIVENESS_PROBE_TIMEOUT_SECONDS``
+- ``K8S_OPENEDX_LIVENESS_PROBE_FAILURE_THRESHOLD``
 
 Settings and defaults
 *********************

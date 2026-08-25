@@ -14,6 +14,41 @@ spec:
             limits:
               cpu: {{ K8S_CMS_CPU_LIMIT }}
               memory: {{ K8S_CMS_MEMORY_LIMIT }}
+          {% if K8S_OPENEDX_HEALTH_PROBES_ENABLE %}
+          startupProbe:
+            httpGet:
+              path: /heartbeat
+              port: 8000
+              httpHeaders:
+                - name: Host
+                  value: cms
+            periodSeconds: {{ K8S_OPENEDX_STARTUP_PROBE_PERIOD_SECONDS }}
+            timeoutSeconds: {{ K8S_OPENEDX_STARTUP_PROBE_TIMEOUT_SECONDS }}
+            failureThreshold: {{ K8S_OPENEDX_STARTUP_PROBE_FAILURE_THRESHOLD }}
+          readinessProbe:
+            httpGet:
+              path: /heartbeat
+              port: 8000
+              httpHeaders:
+                - name: Host
+                  value: cms
+            periodSeconds: {{ K8S_OPENEDX_READINESS_PROBE_PERIOD_SECONDS }}
+            timeoutSeconds: {{ K8S_OPENEDX_READINESS_PROBE_TIMEOUT_SECONDS }}
+            failureThreshold: {{ K8S_OPENEDX_READINESS_PROBE_FAILURE_THRESHOLD }}
+          # Liveness deliberately does NOT use /heartbeat: that endpoint checks
+          # MySQL and the modulestore, which are shared by every pod. A brief
+          # database outage would fail liveness on all replicas at once and
+          # Kubernetes would kill the entire deployment. A TCP check answers the
+          # only question liveness should ask: is this uwsgi process wedged?
+          # Dependency health belongs on readinessProbe, which sheds traffic
+          # without destroying the pod.
+          livenessProbe:
+            tcpSocket:
+              port: 8000
+            periodSeconds: {{ K8S_OPENEDX_LIVENESS_PROBE_PERIOD_SECONDS }}
+            timeoutSeconds: {{ K8S_OPENEDX_LIVENESS_PROBE_TIMEOUT_SECONDS }}
+            failureThreshold: {{ K8S_OPENEDX_LIVENESS_PROBE_FAILURE_THRESHOLD }}
+          {% endif %}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -48,6 +83,36 @@ spec:
             limits:
               cpu: {{ K8S_LMS_CPU_LIMIT }}
               memory: {{ K8S_LMS_MEMORY_LIMIT }}
+          {% if K8S_OPENEDX_HEALTH_PROBES_ENABLE %}
+          startupProbe:
+            httpGet:
+              path: /heartbeat
+              port: 8000
+              httpHeaders:
+                - name: Host
+                  value: lms
+            periodSeconds: {{ K8S_OPENEDX_STARTUP_PROBE_PERIOD_SECONDS }}
+            timeoutSeconds: {{ K8S_OPENEDX_STARTUP_PROBE_TIMEOUT_SECONDS }}
+            failureThreshold: {{ K8S_OPENEDX_STARTUP_PROBE_FAILURE_THRESHOLD }}
+          readinessProbe:
+            httpGet:
+              path: /heartbeat
+              port: 8000
+              httpHeaders:
+                - name: Host
+                  value: lms
+            periodSeconds: {{ K8S_OPENEDX_READINESS_PROBE_PERIOD_SECONDS }}
+            timeoutSeconds: {{ K8S_OPENEDX_READINESS_PROBE_TIMEOUT_SECONDS }}
+            failureThreshold: {{ K8S_OPENEDX_READINESS_PROBE_FAILURE_THRESHOLD }}
+          # See the note on the cms livenessProbe above: liveness must not depend
+          # on MySQL or the modulestore, or a database blip takes down every pod.
+          livenessProbe:
+            tcpSocket:
+              port: 8000
+            periodSeconds: {{ K8S_OPENEDX_LIVENESS_PROBE_PERIOD_SECONDS }}
+            timeoutSeconds: {{ K8S_OPENEDX_LIVENESS_PROBE_TIMEOUT_SECONDS }}
+            failureThreshold: {{ K8S_OPENEDX_LIVENESS_PROBE_FAILURE_THRESHOLD }}
+          {% endif %}
 ---
 apiVersion: apps/v1
 kind: Deployment

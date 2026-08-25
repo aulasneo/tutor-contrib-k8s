@@ -16,6 +16,17 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         # Each new setting is a pair: (setting_name, default_value).
         # Prefix your setting names with 'K8S_'.
         ("K8S_VERSION", __version__),
+        # Open edX application health probes
+        ("K8S_OPENEDX_HEALTH_PROBES_ENABLE", True),
+        ("K8S_OPENEDX_STARTUP_PROBE_PERIOD_SECONDS", 10),
+        ("K8S_OPENEDX_STARTUP_PROBE_TIMEOUT_SECONDS", 5),
+        ("K8S_OPENEDX_STARTUP_PROBE_FAILURE_THRESHOLD", 60),
+        ("K8S_OPENEDX_READINESS_PROBE_PERIOD_SECONDS", 10),
+        ("K8S_OPENEDX_READINESS_PROBE_TIMEOUT_SECONDS", 5),
+        ("K8S_OPENEDX_READINESS_PROBE_FAILURE_THRESHOLD", 3),
+        ("K8S_OPENEDX_LIVENESS_PROBE_PERIOD_SECONDS", 30),
+        ("K8S_OPENEDX_LIVENESS_PROBE_TIMEOUT_SECONDS", 5),
+        ("K8S_OPENEDX_LIVENESS_PROBE_FAILURE_THRESHOLD", 3),
         # HPA settings
         ("K8S_LMS_HPA_ENABLE", True),
         ("K8S_LMS_HPA_CPU_ENABLE", False),
