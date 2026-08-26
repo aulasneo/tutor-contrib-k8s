@@ -1,0 +1,28 @@
+CHANGELOG.md
+  s_5c2814bf787b0d::t_8de64f4c4d386a 3-6
+README.rst
+  s_5c2814bf787b0d::t_eeb38f6bd69e04 70-100
+  s_5c2814bf787b0d::t_94389a768f3ebd 110
+  s_5c2814bf787b0d::t_daa09cd5ba0eb3 23-26
+tutork8s/patches/k8s-override
+  s_5c2814bf787b0d::t_b08f3584ec8116 28-38,40,47-50
+  s_5c2814bf787b0d::t_e610f04c7ad26e 113-115,117,124-127
+tutork8s/plugin.py
+  s_5c2814bf787b0d::t_9ee2934727f373 27-31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "1853c7a72e1efeede6c6e24e80b3d9059b1e2713",
+  "prompts": {},
+  "sessions": {
+    "s_5c2814bf787b0d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bf56d1f1-6119-48ea-83a4-cce21e4cc1dc",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Andrés González <andres@aulasneo.com>"
+    }
+  }
+}
