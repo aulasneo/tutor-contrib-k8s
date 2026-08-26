@@ -24,6 +24,11 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("K8S_OPENEDX_READINESS_PROBE_PERIOD_SECONDS", 10),
         ("K8S_OPENEDX_READINESS_PROBE_TIMEOUT_SECONDS", 5),
         ("K8S_OPENEDX_READINESS_PROBE_FAILURE_THRESHOLD", 3),
+        # Readiness uses a TCP check by default. Pointing it at /heartbeat makes
+        # every replica fail together whenever the shared database stalls, which
+        # empties the Service endpoints and takes the site down. Only enable this
+        # where each replica has independent dependencies.
+        ("K8S_OPENEDX_READINESS_PROBE_USE_HEARTBEAT", False),
         ("K8S_OPENEDX_LIVENESS_PROBE_PERIOD_SECONDS", 30),
         ("K8S_OPENEDX_LIVENESS_PROBE_TIMEOUT_SECONDS", 5),
         ("K8S_OPENEDX_LIVENESS_PROBE_FAILURE_THRESHOLD", 3),

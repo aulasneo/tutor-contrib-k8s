@@ -20,10 +20,10 @@ What it does
 - Adds VerticalPodAutoscaler templates for core services with configurable
   update mode, min/max allowed resources, and controlled resources.
 - Adds startup, readiness, and liveness probes to the LMS and CMS deployments.
-  Startup and readiness call the Open edX ``/heartbeat`` endpoint with the
-  required internal ``Host`` header, preventing services from routing requests
-  to pods before Open edX is ready. Liveness uses a TCP check so that a shared
-  database outage cannot restart every replica at once.
+  The startup probe calls the Open edX ``/heartbeat`` endpoint with the required
+  internal ``Host`` header, so a pod does not join its Service until Open edX can
+  genuinely serve. Readiness and liveness use TCP checks, so a stall in a shared
+  dependency cannot eject or restart every replica at once.
 
 
 Installation
@@ -67,19 +67,37 @@ Health probes
 =============
 
 LMS and CMS health probes are enabled by default with
-``K8S_OPENEDX_HEALTH_PROBES_ENABLE``. Startup and readiness probes call
-``/heartbeat`` on port 8000; startup probes allow up to 10 minutes for Open edX
-to initialize, and readiness probes prevent Service traffic until the
-application health check succeeds.
+``K8S_OPENEDX_HEALTH_PROBES_ENABLE``. The startup probe calls ``/heartbeat`` on
+port 8000 and allows up to 10 minutes for Open edX to initialize. Because
+Kubernetes suspends the readiness and liveness probes until the startup probe
+first succeeds, no pod joins its Service until Open edX has genuinely answered a
+full health check.
 
-Liveness uses a TCP check on port 8000 rather than ``/heartbeat``. This is
-deliberate. ``/heartbeat`` verifies MySQL and the modulestore, which every pod
-shares, so a brief database outage would fail liveness on all replicas
-simultaneously and Kubernetes would restart the whole deployment — turning a
-short dependency blip into a prolonged outage, since each replacement pod must
-pay full Open edX startup time. Liveness should only detect a wedged process;
-dependency health belongs on readiness, which sheds traffic without destroying
-the pod and recovers the moment the dependency returns.
+Readiness and liveness then use TCP checks on port 8000 rather than
+``/heartbeat``. This is deliberate. ``/heartbeat`` verifies MySQL and the
+modulestore, which every pod shares, so a database stall fails the probe on all
+replicas simultaneously:
+
+- On **liveness**, Kubernetes would restart the whole deployment, turning a short
+  dependency blip into a prolonged outage since each replacement pod must pay
+  full Open edX startup time.
+- On **readiness**, Kubernetes removes every pod from the Service endpoints. The
+  ingress then has nowhere to send traffic and refuses connections, so the site
+  is completely down even though every pod is healthy and idle. Not restarting
+  the pods is little consolation when no request can reach them.
+
+A probe should answer "can *this* pod serve?", not "is the shared database
+healthy?". Correlated dependency checks turn a slowdown into an outage, and they
+do it at the worst possible moment — under load, when the database is already
+struggling. Genuine dependency failures surface as application errors and in
+monitoring, which is where they belong.
+
+If every replica has independent dependencies and you want dependency-aware
+readiness, set ``K8S_OPENEDX_READINESS_PROBE_USE_HEARTBEAT`` to ``true`` to
+restore the ``/heartbeat`` readiness check. Be aware that timing settings alone
+are not a safe substitute: a dump holding table locks, or any stall lasting
+minutes, will outlast any reasonable ``timeoutSeconds`` × ``failureThreshold``
+budget.
 
 The probe timing settings are:
 
@@ -89,6 +107,7 @@ The probe timing settings are:
 - ``K8S_OPENEDX_READINESS_PROBE_PERIOD_SECONDS``
 - ``K8S_OPENEDX_READINESS_PROBE_TIMEOUT_SECONDS``
 - ``K8S_OPENEDX_READINESS_PROBE_FAILURE_THRESHOLD``
+- ``K8S_OPENEDX_READINESS_PROBE_USE_HEARTBEAT`` (default ``false``)
 - ``K8S_OPENEDX_LIVENESS_PROBE_PERIOD_SECONDS``
 - ``K8S_OPENEDX_LIVENESS_PROBE_TIMEOUT_SECONDS``
 - ``K8S_OPENEDX_LIVENESS_PROBE_FAILURE_THRESHOLD``

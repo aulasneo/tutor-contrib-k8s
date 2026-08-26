@@ -1,5 +1,9 @@
 # Change log
 
+## Unreleased
+- fix: stop the readiness probe from depending on `/heartbeat`. That endpoint checks MySQL and the modulestore, which every replica shares, so a database stall failed readiness on all pods at once, emptied the Service endpoints and took the site down while every pod stayed healthy and idle. Readiness now uses a TCP check, matching liveness. The startup probe still calls `/heartbeat`, so pods continue to join their Service only once Open edX can genuinely serve.
+- feat: add `K8S_OPENEDX_READINESS_PROBE_USE_HEARTBEAT` (default `false`) to opt back in to dependency-aware readiness where replicas have independent dependencies.
+
 ## Version 21.1.0 (2026-08-25)
 - feat: Implement readiness and liveness probes to avoid sending traffic to not-ready pods.
 

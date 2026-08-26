@@ -25,13 +25,29 @@ spec:
             periodSeconds: {{ K8S_OPENEDX_STARTUP_PROBE_PERIOD_SECONDS }}
             timeoutSeconds: {{ K8S_OPENEDX_STARTUP_PROBE_TIMEOUT_SECONDS }}
             failureThreshold: {{ K8S_OPENEDX_STARTUP_PROBE_FAILURE_THRESHOLD }}
+          # Readiness defaults to a TCP check for the same reason as liveness
+          # below. /heartbeat verifies MySQL and the modulestore, which every
+          # replica shares, so a stalled database fails the probe on all replicas
+          # at once. That empties the Service endpoints and the ingress starts
+          # refusing connections: a dependency slowdown becomes a total outage,
+          # with every pod healthy but unreachable. Restarting nothing is small
+          # comfort when no request can land.
+          # The startupProbe above already gates traffic on a real /heartbeat
+          # before the pod first joins the Service, which is what readiness was
+          # introduced for. Set K8S_OPENEDX_READINESS_PROBE_USE_HEARTBEAT to opt
+          # back in to dependency-aware readiness.
           readinessProbe:
+            {% if K8S_OPENEDX_READINESS_PROBE_USE_HEARTBEAT %}
             httpGet:
               path: /heartbeat
               port: 8000
               httpHeaders:
                 - name: Host
                   value: cms
+            {% else %}
+            tcpSocket:
+              port: 8000
+            {% endif %}
             periodSeconds: {{ K8S_OPENEDX_READINESS_PROBE_PERIOD_SECONDS }}
             timeoutSeconds: {{ K8S_OPENEDX_READINESS_PROBE_TIMEOUT_SECONDS }}
             failureThreshold: {{ K8S_OPENEDX_READINESS_PROBE_FAILURE_THRESHOLD }}
@@ -94,13 +110,21 @@ spec:
             periodSeconds: {{ K8S_OPENEDX_STARTUP_PROBE_PERIOD_SECONDS }}
             timeoutSeconds: {{ K8S_OPENEDX_STARTUP_PROBE_TIMEOUT_SECONDS }}
             failureThreshold: {{ K8S_OPENEDX_STARTUP_PROBE_FAILURE_THRESHOLD }}
+          # See the note on the cms readinessProbe above: readiness must not
+          # depend on MySQL or the modulestore, or a database stall empties the
+          # Service endpoints on every replica at once and the site goes dark.
           readinessProbe:
+            {% if K8S_OPENEDX_READINESS_PROBE_USE_HEARTBEAT %}
             httpGet:
               path: /heartbeat
               port: 8000
               httpHeaders:
                 - name: Host
                   value: lms
+            {% else %}
+            tcpSocket:
+              port: 8000
+            {% endif %}
             periodSeconds: {{ K8S_OPENEDX_READINESS_PROBE_PERIOD_SECONDS }}
             timeoutSeconds: {{ K8S_OPENEDX_READINESS_PROBE_TIMEOUT_SECONDS }}
             failureThreshold: {{ K8S_OPENEDX_READINESS_PROBE_FAILURE_THRESHOLD }}
