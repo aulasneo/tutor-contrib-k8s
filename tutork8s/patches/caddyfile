@@ -1,0 +1,5 @@
+{% if K8S_LMS_KEDA_ENABLE or K8S_CMS_KEDA_ENABLE or K8S_MFE_KEDA_ENABLE or K8S_CADDY_KEDA_ENABLE %}
+:{{ K8S_CADDY_METRICS_PORT }} {
+    metrics
+}
+{% endif %}

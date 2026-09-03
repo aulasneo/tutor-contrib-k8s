@@ -18,7 +18,7 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-  "tutor>=21.0.0,<22.0.0",
+  "tutor>=22.0.2,<23.0.0",
 ]
 dynamic = ["version"]
 
@@ -41,5 +41,5 @@ packages = ["tutork8s"]
 
 [tool.hatch.build.targets.sdist]
 strict-naming = false
-include = ["/tutork8s", "/README.rst", "/LICENSE.txt", "/CHANGELOG.md"]
+include = ["/tutork8s", "/docs", "/README.rst", "/LICENSE.txt", "/CHANGELOG.md"]
 exclude = ["tests*"]

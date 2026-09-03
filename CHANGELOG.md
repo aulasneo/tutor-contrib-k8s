@@ -1,5 +1,10 @@
 # Change log
 
+## Version 22.0.0 (unreleased)
+- feat: target Open edX Verawood with Tutor 22.x
+- feat: add opt-in KEDA autoscaling based on Caddy in-flight requests and Celery Redis queue depth
+- build: resolve Tutor runtime and development dependencies together, with Tutor 22.0.2 pinned in the development lockfile
+
 ## Version 21.1.1 (2026-08-26)
 - fix: stop the readiness probe from depending on `/heartbeat`. That endpoint checks MySQL and the modulestore, which every replica shares, so a database stall failed readiness on all pods at once, emptied the Service endpoints and took the site down while every pod stayed healthy and idle. Readiness now uses a TCP check, matching liveness. The startup probe still calls `/heartbeat`, so pods continue to join their Service only once Open edX can genuinely serve.
 - feat: add `K8S_OPENEDX_READINESS_PROBE_USE_HEARTBEAT` (default `false`) to opt back in to dependency-aware readiness where replicas have independent dependencies.

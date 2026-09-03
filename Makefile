@@ -6,13 +6,13 @@ TWINE = $(PYTHON) -m twine
 TUTOR ?= $(if $(VIRTUAL_ENV),$(VIRTUAL_ENV)/bin/tutor,tutor)
 TUTOR_CMD = $(TUTOR) -r $(CURDIR)
 SRC_DIRS = ./tutork8s
-BLACK_OPTS = --exclude templates ${SRC_DIRS}
+BLACK_OPTS = --target-version py312 --exclude templates ${SRC_DIRS}
 
 clean: ## Remove build artifacts
 	rm -rf build dist *.egg-info
 
-upgrade: ## Compile requirements from requirements.in
-	pip-compile
+upgrade: ## Compile runtime and development requirements together
+	pip-compile --output-file=requirements.txt pyproject.toml requirements.in
 
 requirements: ## Install requirements from requirements.txt
 	$(PYTHON) -m pip install --upgrade -r requirements.txt

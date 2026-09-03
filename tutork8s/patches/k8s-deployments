@@ -1,6 +1,334 @@
 # Start of tutor-contrib-k8s patches
+{% set K8S_WEB_KEDA_ENABLED = K8S_LMS_KEDA_ENABLE or K8S_CMS_KEDA_ENABLE or K8S_MFE_KEDA_ENABLE or K8S_CADDY_KEDA_ENABLE %}
+{% set K8S_CADDY_METRICS_URL = "http://caddy-metrics." ~ K8S_NAMESPACE ~ ".svc.cluster.local:" ~ K8S_CADDY_METRICS_PORT ~ "/metrics" %}
+{% set K8S_MFE_METRICS_HOST = K8S_MFE_KEDA_HOST or "apps." ~ LMS_HOST %}
+{% if K8S_WEB_KEDA_ENABLED %}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: caddy-metrics
+  namespace: {{ K8S_NAMESPACE }}
+  labels:
+    app.kubernetes.io/name: caddy-metrics
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: caddy
+  ports:
+    - name: metrics
+      port: {{ K8S_CADDY_METRICS_PORT }}
+      targetPort: {{ K8S_CADDY_METRICS_PORT }}
+      protocol: TCP
+{% endif %}
+
+{% set K8S_WEB_KEDA_WORKLOADS = [
+  {
+    "enabled": K8S_LMS_KEDA_ENABLE,
+    "name": "lms",
+    "host": LMS_HOST,
+    "replicas": K8S_LMS_REPLICAS,
+    "max_replicas": K8S_LMS_MAX_REPLICAS,
+    "target": K8S_LMS_KEDA_TARGET_INFLIGHT,
+    "scale_up_window": K8S_LMS_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS,
+    "scale_up_percent": K8S_LMS_HPA_SCALE_UP_PERCENT,
+    "scale_up_pods": K8S_LMS_HPA_SCALE_UP_PODS,
+    "scale_up_period": K8S_LMS_HPA_SCALE_UP_PERIOD_SECONDS,
+    "scale_down_window": K8S_LMS_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS,
+    "scale_down_percent": K8S_LMS_HPA_SCALE_DOWN_PERCENT,
+    "scale_down_pods": K8S_LMS_HPA_SCALE_DOWN_PODS,
+    "scale_down_period": K8S_LMS_HPA_SCALE_DOWN_PERIOD_SECONDS,
+  },
+  {
+    "enabled": K8S_CMS_KEDA_ENABLE,
+    "name": "cms",
+    "host": CMS_HOST,
+    "replicas": K8S_CMS_REPLICAS,
+    "max_replicas": K8S_CMS_MAX_REPLICAS,
+    "target": K8S_CMS_KEDA_TARGET_INFLIGHT,
+    "scale_up_window": K8S_CMS_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS,
+    "scale_up_percent": K8S_CMS_HPA_SCALE_UP_PERCENT,
+    "scale_up_pods": K8S_CMS_HPA_SCALE_UP_PODS,
+    "scale_up_period": K8S_CMS_HPA_SCALE_UP_PERIOD_SECONDS,
+    "scale_down_window": K8S_CMS_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS,
+    "scale_down_percent": K8S_CMS_HPA_SCALE_DOWN_PERCENT,
+    "scale_down_pods": K8S_CMS_HPA_SCALE_DOWN_PODS,
+    "scale_down_period": K8S_CMS_HPA_SCALE_DOWN_PERIOD_SECONDS,
+  },
+  {
+    "enabled": K8S_MFE_KEDA_ENABLE,
+    "name": "mfe",
+    "host": K8S_MFE_METRICS_HOST,
+    "replicas": K8S_MFE_REPLICAS,
+    "max_replicas": K8S_MFE_MAX_REPLICAS,
+    "target": K8S_MFE_KEDA_TARGET_INFLIGHT,
+    "scale_up_window": K8S_MFE_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS,
+    "scale_up_percent": K8S_MFE_HPA_SCALE_UP_PERCENT,
+    "scale_up_pods": K8S_MFE_HPA_SCALE_UP_PODS,
+    "scale_up_period": K8S_MFE_HPA_SCALE_UP_PERIOD_SECONDS,
+    "scale_down_window": K8S_MFE_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS,
+    "scale_down_percent": K8S_MFE_HPA_SCALE_DOWN_PERCENT,
+    "scale_down_pods": K8S_MFE_HPA_SCALE_DOWN_PODS,
+    "scale_down_period": K8S_MFE_HPA_SCALE_DOWN_PERIOD_SECONDS,
+  },
+] %}
+{% for workload in K8S_WEB_KEDA_WORKLOADS if workload.enabled %}
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ workload.name }}
+  namespace: {{ K8S_NAMESPACE }}
+  labels:
+    app.kubernetes.io/name: {{ workload.name }}
+spec:
+  scaleTargetRef:
+    name: {{ workload.name }}
+  pollingInterval: {{ K8S_KEDA_POLLING_INTERVAL_SECONDS }}
+  minReplicaCount: {{ [workload.replicas, 1] | max }}
+  maxReplicaCount: {{ workload.max_replicas }}
+  fallback:
+    failureThreshold: {{ K8S_KEDA_FALLBACK_FAILURE_THRESHOLD }}
+    replicas: {{ [K8S_KEDA_FALLBACK_REPLICAS, 1] | max }}
+  advanced:
+    restoreToOriginalReplicaCount: false
+    horizontalPodAutoscalerConfig:
+      name: {{ workload.name }}-keda-hpa
+      behavior:
+        scaleUp:
+          stabilizationWindowSeconds: {{ workload.scale_up_window }}
+          selectPolicy: Max
+          policies:
+            - type: Percent
+              value: {{ workload.scale_up_percent }}
+              periodSeconds: {{ workload.scale_up_period }}
+            - type: Pods
+              value: {{ workload.scale_up_pods }}
+              periodSeconds: {{ workload.scale_up_period }}
+        scaleDown:
+          stabilizationWindowSeconds: {{ workload.scale_down_window }}
+          selectPolicy: Min
+          policies:
+            - type: Percent
+              value: {{ workload.scale_down_percent }}
+              periodSeconds: {{ workload.scale_down_period }}
+            - type: Pods
+              value: {{ workload.scale_down_pods }}
+              periodSeconds: {{ workload.scale_down_period }}
+  triggers:
+    - type: metrics-api
+      metricType: AverageValue
+      metadata:
+        url: "{{ K8S_CADDY_METRICS_URL }}"
+        format: prometheus
+        valueLocation: 'caddy_http_requests_in_flight{host="{{ workload.host }}",handler="reverse_proxy"}'
+        targetValue: "{{ workload.target }}"
+        aggregateFromKubeServiceEndpoints: "true"
+        aggregationType: sum
+{% endfor %}
+
+{% set K8S_WORKER_KEDA_WORKLOADS = [
+  {
+    "enabled": K8S_LMS_WORKER_KEDA_ENABLE,
+    "name": "lms-worker",
+    "queues": K8S_LMS_WORKER_KEDA_QUEUE_NAMES,
+    "replicas": K8S_LMS_WORKER_REPLICAS,
+    "max_replicas": K8S_LMS_WORKER_MAX_REPLICAS,
+    "target": K8S_LMS_WORKER_KEDA_TARGET_QUEUE_LENGTH,
+    "scale_up_window": K8S_LMS_WORKER_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS,
+    "scale_up_percent": K8S_LMS_WORKER_HPA_SCALE_UP_PERCENT,
+    "scale_up_pods": K8S_LMS_WORKER_HPA_SCALE_UP_PODS,
+    "scale_up_period": K8S_LMS_WORKER_HPA_SCALE_UP_PERIOD_SECONDS,
+    "scale_down_window": K8S_LMS_WORKER_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS,
+    "scale_down_percent": K8S_LMS_WORKER_HPA_SCALE_DOWN_PERCENT,
+    "scale_down_pods": K8S_LMS_WORKER_HPA_SCALE_DOWN_PODS,
+    "scale_down_period": K8S_LMS_WORKER_HPA_SCALE_DOWN_PERIOD_SECONDS,
+  },
+  {
+    "enabled": K8S_CMS_WORKER_KEDA_ENABLE,
+    "name": "cms-worker",
+    "queues": K8S_CMS_WORKER_KEDA_QUEUE_NAMES,
+    "replicas": K8S_CMS_WORKER_REPLICAS,
+    "max_replicas": K8S_CMS_WORKER_MAX_REPLICAS,
+    "target": K8S_CMS_WORKER_KEDA_TARGET_QUEUE_LENGTH,
+    "scale_up_window": K8S_CMS_WORKER_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS,
+    "scale_up_percent": K8S_CMS_WORKER_HPA_SCALE_UP_PERCENT,
+    "scale_up_pods": K8S_CMS_WORKER_HPA_SCALE_UP_PODS,
+    "scale_up_period": K8S_CMS_WORKER_HPA_SCALE_UP_PERIOD_SECONDS,
+    "scale_down_window": K8S_CMS_WORKER_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS,
+    "scale_down_percent": K8S_CMS_WORKER_HPA_SCALE_DOWN_PERCENT,
+    "scale_down_pods": K8S_CMS_WORKER_HPA_SCALE_DOWN_PODS,
+    "scale_down_period": K8S_CMS_WORKER_HPA_SCALE_DOWN_PERIOD_SECONDS,
+  },
+] %}
+{% if (K8S_LMS_WORKER_KEDA_ENABLE or K8S_CMS_WORKER_KEDA_ENABLE) and REDIS_USERNAME and REDIS_PASSWORD %}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: keda-redis-auth
+  namespace: {{ K8S_NAMESPACE }}
+type: Opaque
+stringData:
+  username: |-
+    {{ REDIS_USERNAME }}
+  password: |-
+    {{ REDIS_PASSWORD }}
+---
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: keda-redis-auth
+  namespace: {{ K8S_NAMESPACE }}
+spec:
+  secretTargetRef:
+    - parameter: username
+      name: keda-redis-auth
+      key: username
+    - parameter: password
+      name: keda-redis-auth
+      key: password
+{% endif %}
+{% for worker in K8S_WORKER_KEDA_WORKLOADS if worker.enabled %}
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ worker.name }}
+  namespace: {{ K8S_NAMESPACE }}
+  labels:
+    app.kubernetes.io/name: {{ worker.name }}
+spec:
+  scaleTargetRef:
+    name: {{ worker.name }}
+  pollingInterval: {{ K8S_KEDA_POLLING_INTERVAL_SECONDS }}
+  minReplicaCount: {{ [worker.replicas, 1] | max }}
+  maxReplicaCount: {{ worker.max_replicas }}
+  fallback:
+    failureThreshold: {{ K8S_KEDA_FALLBACK_FAILURE_THRESHOLD }}
+    replicas: {{ [K8S_KEDA_FALLBACK_REPLICAS, 1] | max }}
+  advanced:
+    restoreToOriginalReplicaCount: false
+    horizontalPodAutoscalerConfig:
+      name: {{ worker.name }}-keda-hpa
+      behavior:
+        scaleUp:
+          stabilizationWindowSeconds: {{ worker.scale_up_window }}
+          selectPolicy: Max
+          policies:
+            - type: Percent
+              value: {{ worker.scale_up_percent }}
+              periodSeconds: {{ worker.scale_up_period }}
+            - type: Pods
+              value: {{ worker.scale_up_pods }}
+              periodSeconds: {{ worker.scale_up_period }}
+        scaleDown:
+          stabilizationWindowSeconds: {{ worker.scale_down_window }}
+          selectPolicy: Min
+          policies:
+            - type: Percent
+              value: {{ worker.scale_down_percent }}
+              periodSeconds: {{ worker.scale_down_period }}
+            - type: Pods
+              value: {{ worker.scale_down_pods }}
+              periodSeconds: {{ worker.scale_down_period }}
+    scalingModifiers:
+      target: "{{ worker.target }}"
+      activationTarget: "0"
+      metricType: AverageValue
+      formula: "0{% for queue in worker.queues %}{% set queue_index = loop.index0 %}{% for priority in K8S_KEDA_REDIS_PRIORITY_STEPS %} + q{{ queue_index }}p{{ priority }}{% endfor %}{% endfor %}"
+  triggers:
+    {% for queue in worker.queues %}
+    {% set queue_index = loop.index0 %}
+    {% for priority in K8S_KEDA_REDIS_PRIORITY_STEPS %}
+    - type: redis
+      name: q{{ queue_index }}p{{ priority }}
+      metricType: AverageValue
+      metadata:
+        address: "{{ REDIS_HOST }}:{{ REDIS_PORT }}"
+        databaseIndex: "{{ OPENEDX_CELERY_REDIS_DB }}"
+        listName: "{{ queue }}{% if priority != 0 %}\u0006\u0016{{ priority }}{% endif %}"
+        listLength: "{{ worker.target }}"
+        enableTLS: "{{ K8S_KEDA_REDIS_TLS_ENABLE | lower }}"
+        unsafeSsl: "{{ K8S_KEDA_REDIS_UNSAFE_SSL | lower }}"
+      {% if REDIS_USERNAME and REDIS_PASSWORD %}
+      authenticationRef:
+        name: keda-redis-auth
+      {% endif %}
+    {% endfor %}
+    {% endfor %}
+{% endfor %}
+
+{% if K8S_CADDY_KEDA_ENABLE %}
+{% set K8S_CADDY_KEDA_HOSTS = [LMS_HOST, CMS_HOST] %}
+{% if K8S_MFE_KEDA_ENABLE %}
+{% set K8S_CADDY_KEDA_HOSTS = K8S_CADDY_KEDA_HOSTS + [K8S_MFE_METRICS_HOST] %}
+{% endif %}
+{% set K8S_CADDY_KEDA_HOSTS = K8S_CADDY_KEDA_HOSTS + K8S_CADDY_KEDA_EXTRA_HOSTS %}
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: caddy
+  namespace: {{ K8S_NAMESPACE }}
+  labels:
+    app.kubernetes.io/name: caddy
+spec:
+  scaleTargetRef:
+    name: caddy
+  pollingInterval: {{ K8S_KEDA_POLLING_INTERVAL_SECONDS }}
+  minReplicaCount: {{ [K8S_CADDY_REPLICAS, 1] | max }}
+  maxReplicaCount: {{ K8S_CADDY_MAX_REPLICAS }}
+  fallback:
+    failureThreshold: {{ K8S_KEDA_FALLBACK_FAILURE_THRESHOLD }}
+    replicas: {{ [K8S_KEDA_FALLBACK_REPLICAS, 1] | max }}
+  advanced:
+    restoreToOriginalReplicaCount: false
+    horizontalPodAutoscalerConfig:
+      name: caddy-keda-hpa
+      behavior:
+        scaleUp:
+          stabilizationWindowSeconds: {{ K8S_CADDY_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS }}
+          selectPolicy: Max
+          policies:
+            - type: Percent
+              value: {{ K8S_CADDY_HPA_SCALE_UP_PERCENT }}
+              periodSeconds: {{ K8S_CADDY_HPA_SCALE_UP_PERIOD_SECONDS }}
+            - type: Pods
+              value: {{ K8S_CADDY_HPA_SCALE_UP_PODS }}
+              periodSeconds: {{ K8S_CADDY_HPA_SCALE_UP_PERIOD_SECONDS }}
+        scaleDown:
+          stabilizationWindowSeconds: {{ K8S_CADDY_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS }}
+          selectPolicy: Min
+          policies:
+            - type: Percent
+              value: {{ K8S_CADDY_HPA_SCALE_DOWN_PERCENT }}
+              periodSeconds: {{ K8S_CADDY_HPA_SCALE_DOWN_PERIOD_SECONDS }}
+            - type: Pods
+              value: {{ K8S_CADDY_HPA_SCALE_DOWN_PODS }}
+              periodSeconds: {{ K8S_CADDY_HPA_SCALE_DOWN_PERIOD_SECONDS }}
+    scalingModifiers:
+      target: "{{ K8S_CADDY_KEDA_TARGET_INFLIGHT }}"
+      activationTarget: "0"
+      metricType: AverageValue
+      formula: "0{% for host in K8S_CADDY_KEDA_HOSTS %} + host{{ loop.index0 }}{% endfor %}"
+  triggers:
+    {% for host in K8S_CADDY_KEDA_HOSTS %}
+    - type: metrics-api
+      name: host{{ loop.index0 }}
+      metricType: AverageValue
+      metadata:
+        url: "{{ K8S_CADDY_METRICS_URL }}"
+        format: prometheus
+        valueLocation: 'caddy_http_requests_in_flight{host="{{ host }}",handler="reverse_proxy"}'
+        targetValue: "{{ K8S_CADDY_KEDA_TARGET_INFLIGHT }}"
+        aggregateFromKubeServiceEndpoints: "true"
+        aggregationType: sum
+    {% endfor %}
+{% endif %}
+
 {% set K8S_LMS_HPA_HAS_METRICS = K8S_LMS_HPA_CPU_ENABLE or K8S_LMS_HPA_MEMORY_ENABLE %}
-{% if K8S_LMS_HPA_ENABLE and K8S_LMS_HPA_HAS_METRICS %}
+{% if K8S_LMS_HPA_ENABLE and K8S_LMS_HPA_HAS_METRICS and not K8S_LMS_KEDA_ENABLE %}
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -55,7 +383,7 @@ spec:
 {% endif %}
 
 {% set K8S_LMS_WORKER_HPA_HAS_METRICS = K8S_LMS_WORKER_HPA_CPU_ENABLE or K8S_LMS_WORKER_HPA_MEMORY_ENABLE %}
-{% if K8S_LMS_WORKER_HPA_ENABLE and K8S_LMS_WORKER_HPA_HAS_METRICS %}
+{% if K8S_LMS_WORKER_HPA_ENABLE and K8S_LMS_WORKER_HPA_HAS_METRICS and not K8S_LMS_WORKER_KEDA_ENABLE %}
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -110,7 +438,7 @@ spec:
 {% endif %}
 
 {% set K8S_CMS_HPA_HAS_METRICS = K8S_CMS_HPA_CPU_ENABLE or K8S_CMS_HPA_MEMORY_ENABLE %}
-{% if K8S_CMS_HPA_ENABLE and K8S_CMS_HPA_HAS_METRICS %}
+{% if K8S_CMS_HPA_ENABLE and K8S_CMS_HPA_HAS_METRICS and not K8S_CMS_KEDA_ENABLE %}
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -165,7 +493,7 @@ spec:
 {% endif %}
 
 {% set K8S_CMS_WORKER_HPA_HAS_METRICS = K8S_CMS_WORKER_HPA_CPU_ENABLE or K8S_CMS_WORKER_HPA_MEMORY_ENABLE %}
-{% if K8S_CMS_WORKER_HPA_ENABLE and K8S_CMS_WORKER_HPA_HAS_METRICS %}
+{% if K8S_CMS_WORKER_HPA_ENABLE and K8S_CMS_WORKER_HPA_HAS_METRICS and not K8S_CMS_WORKER_KEDA_ENABLE %}
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -220,7 +548,7 @@ spec:
 {% endif %}
 
 {% set K8S_MFE_HPA_HAS_METRICS = K8S_MFE_HPA_CPU_ENABLE or K8S_MFE_HPA_MEMORY_ENABLE %}
-{% if K8S_MFE_HPA_ENABLE and K8S_MFE_HPA_HAS_METRICS %}
+{% if K8S_MFE_HPA_ENABLE and K8S_MFE_HPA_HAS_METRICS and not K8S_MFE_KEDA_ENABLE %}
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -275,7 +603,7 @@ spec:
 {% endif %}
 
 {% set K8S_CADDY_HPA_HAS_METRICS = K8S_CADDY_HPA_CPU_ENABLE or K8S_CADDY_HPA_MEMORY_ENABLE %}
-{% if K8S_CADDY_HPA_ENABLE and K8S_CADDY_HPA_HAS_METRICS %}
+{% if K8S_CADDY_HPA_ENABLE and K8S_CADDY_HPA_HAS_METRICS and not K8S_CADDY_KEDA_ENABLE %}
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
