@@ -1,0 +1,53 @@
+tutork8s/patches/k8s-deployments
+  s_14736b64d0d4cc::t_6a5cc6ee70693a 264
+  s_14736b64d0d4cc::t_70bcc5ea4ebb16 4,25-238,240-263,265-313,315-329,331,386,441,496,551,606
+  s_14736b64d0d4cc::t_b55d9750d52f53 2-3,5-24
+  s_14736b64d0d4cc::t_fc3579b39c0b7e 239,314
+CHANGELOG.md
+  s_14736b64d0d4cc::t_45fd86fe8a2c72 3-5,7
+  s_14736b64d0d4cc::t_ffdd8b5372d286 6
+tutork8s/plugin.py
+  s_14736b64d0d4cc::t_70bcc5ea4ebb16 113,127
+  s_14736b64d0d4cc::t_45fd86fe8a2c72 35-74
+requirements.txt
+  s_14736b64d0d4cc::t_3afc3f62008525 21,23,27,31,40,50,58,64,74,82,93-95,97,101,108,112,114,116,126,130,144,146,164,176,184
+  s_14736b64d0d4cc::t_f4732272ffb720 5,7-16,19-20,28-30,33,37,42-47,51-57,66-67,70-73,76-77,86-91,96,99-100,105,109-111,120-125,136-137,140-143,148-149,152-153,160-163,166-167,170-175,179,182-183,186-189
+tutork8s/patches/caddyfile
+  s_14736b64d0d4cc::t_70bcc5ea4ebb16 1-5
+README.rst
+  s_14736b64d0d4cc::t_1e9481ac026acb 47-52,55-88
+  s_14736b64d0d4cc::t_9ff836af2159f2 126
+  s_14736b64d0d4cc::t_59574f6e026737 8,15-17,111-122,125
+  s_14736b64d0d4cc::t_96f89f0e099680 123-124
+  s_14736b64d0d4cc::t_ffdd8b5372d286 334,354
+  s_14736b64d0d4cc::t_3287ab036c41d0 53-54
+tutork8s/patches/caddyfile-global
+  s_14736b64d0d4cc::t_70bcc5ea4ebb16 1-5
+tutork8s/__about__.py
+  s_14736b64d0d4cc::t_45fd86fe8a2c72 1
+docs/autoscaling-v22.md
+  s_14736b64d0d4cc::t_59574f6e026737 1-41,45-152,154-180,182-196,198-206
+  s_14736b64d0d4cc::t_b55d9750d52f53 42-44,181
+  s_14736b64d0d4cc::t_01da178b2bab65 153,197
+pyproject.toml
+  s_14736b64d0d4cc::t_45fd86fe8a2c72 21,44
+Makefile
+  s_14736b64d0d4cc::t_bae1a74037c0b4 14-15
+  s_14736b64d0d4cc::t_dae241c5cac5f0 9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "42902614ffc0735017d228b0fbdaeec42b14cfa7",
+  "prompts": {},
+  "sessions": {
+    "s_14736b64d0d4cc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0675b-d66d-7662-bca5-13bc03d60d7b",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
