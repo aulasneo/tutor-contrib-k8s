@@ -11,12 +11,11 @@ BLACK_OPTS = --target-version py312 --exclude templates ${SRC_DIRS}
 clean: ## Remove build artifacts
 	rm -rf build dist *.egg-info
 
-upgrade: ## Compile runtime and development requirements together
-	pip-compile --output-file=requirements.txt pyproject.toml requirements.in
+install: ## Install the package and development dependencies
+	$(PYTHON) -m pip install -e '.[dev]'
 
-requirements: ## Install requirements from requirements.txt
-	$(PYTHON) -m pip install --upgrade -r requirements.txt
-	$(PYTHON) -m pip install -e .
+upgrade: ## Upgrade the package and development dependencies
+	$(PYTHON) -m pip install --upgrade -e '.[dev]'
 
 build: clean ## Build the package
 	$(PYTHON) -m build
