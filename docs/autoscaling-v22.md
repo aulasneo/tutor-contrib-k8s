@@ -44,7 +44,7 @@ When any web KEDA setting is enabled, the plugin:
    is not modified, and no ingress route or public load balancer port is created.
 3. Creates one Metrics API trigger per host. The trigger selects
    `caddy_http_requests_in_flight` with exact `host` and
-   `handler="reverse_proxy"` labels, then sums the gauge over all ready Caddy
+   `handler="subroute"` labels, then sums the gauge over all ready Caddy
    endpoints.
 
 `K8S_MFE_KEDA_HOST` defaults to an empty string, which means

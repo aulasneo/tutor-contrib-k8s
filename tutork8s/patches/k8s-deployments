@@ -121,7 +121,7 @@ spec:
       metadata:
         url: "{{ K8S_CADDY_METRICS_URL }}"
         format: prometheus
-        valueLocation: 'caddy_http_requests_in_flight{host="{{ workload.host }}",handler="reverse_proxy"}'
+        valueLocation: 'caddy_http_requests_in_flight{host="{{ workload.host }}",handler="subroute"}'
         targetValue: "{{ workload.target }}"
         aggregateFromKubeServiceEndpoints: "true"
         aggregationType: sum
@@ -320,7 +320,7 @@ spec:
       metadata:
         url: "{{ K8S_CADDY_METRICS_URL }}"
         format: prometheus
-        valueLocation: 'caddy_http_requests_in_flight{host="{{ host }}",handler="reverse_proxy"}'
+        valueLocation: 'caddy_http_requests_in_flight{host="{{ host }}",handler="subroute"}'
         targetValue: "{{ K8S_CADDY_KEDA_TARGET_INFLIGHT }}"
         aggregateFromKubeServiceEndpoints: "true"
         aggregationType: sum

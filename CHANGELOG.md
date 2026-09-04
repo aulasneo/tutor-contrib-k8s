@@ -1,8 +1,9 @@
 # Change log
 
-## Version 22.0.0 (unreleased)
+## Unreleased
 - feat: target Open edX Verawood with Tutor 22.x
 - feat: add opt-in KEDA autoscaling based on Caddy in-flight requests and Celery Redis queue depth
+- fix: match Tutor 22 Caddy routes using the emitted `handler="subroute"` metric label
 - build: resolve Tutor runtime and development dependencies together, with Tutor 22.0.2 pinned in the development lockfile
 
 ## Version 21.1.1 (2026-08-26)
