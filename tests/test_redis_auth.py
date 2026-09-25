@@ -40,11 +40,15 @@ class RedisAuthenticationTests(unittest.TestCase):
                         K8S_LMS_WORKER_KEDA_ENABLE=lms,
                         K8S_CMS_WORKER_KEDA_ENABLE=cms,
                     )
-                    resources = {
-                        (doc["kind"], doc["metadata"]["name"]): doc
-                        for doc in yaml.safe_load_all(template.render(config))
-                        if doc
-                    }
+                    resources = {}
+                    for doc in yaml.safe_load_all(template.render(config)):
+                        if not doc:
+                            continue
+                        key = (doc["kind"], doc["metadata"]["name"])
+                        self.assertNotIn(
+                            key, resources, f"Duplicate rendered resource: {key}"
+                        )
+                        resources[key] = doc
                     auth_expected = bool((lms or cms) and password)
                     for kind in ["Secret", "TriggerAuthentication"]:
                         self.assertEqual(
