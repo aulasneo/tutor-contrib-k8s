@@ -1,0 +1,21 @@
+tests/test_redis_auth.py
+  s_bddfb98a2d4c45::t_9da9d0ceb51af8 43-51
+pyproject.toml
+  s_bddfb98a2d4c45::t_9da9d0ceb51af8 33,37
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "6368ac83638fe5d710667bebf8721dd13380a27a",
+  "prompts": {},
+  "sessions": {
+    "s_bddfb98a2d4c45": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0d861-e0c5-7d43-b5f9-e551e597552e",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Andrés González <andres@aulasneo.com>"
+    }
+  }
+}
