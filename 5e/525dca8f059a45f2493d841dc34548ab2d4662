@@ -1,0 +1,24 @@
+CHANGELOG.md
+  s_14736b64d0d4cc::t_4baea449238a81 6
+  s_14736b64d0d4cc::t_45fd86fe8a2c72 3
+docs/autoscaling-v22.md
+  s_14736b64d0d4cc::t_4baea449238a81 47
+tutork8s/patches/k8s-deployments
+  s_14736b64d0d4cc::t_4baea449238a81 124,323
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "5e525dca8f059a45f2493d841dc34548ab2d4662",
+  "prompts": {},
+  "sessions": {
+    "s_14736b64d0d4cc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0675b-d66d-7662-bca5-13bc03d60d7b",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Andrés González <andres@aulasneo.com>"
+    }
+  }
+}
