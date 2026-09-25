@@ -5,13 +5,16 @@ Helper plugin for Kubernetes deployments of Open edX. It extends Tutor's K8s
 environment with deployment patches and configuration knobs for autoscaling and
 resource sizing of LMS, CMS, their workers, MFEs, and Caddy.
 
-This release targets Open edX Ulmo with Tutor 21.x.
+This release targets Open edX Verawood with Tutor 22.x.
 
 What it does
 ************
 
 - Adds Kubernetes patch templates that tweak deployments, HPAs, and resource
   requests/limits for Tutor services.
+- Adds opt-in KEDA autoscaling for request-serving workloads using Caddy
+  in-flight requests and for Celery workers using Redis queue depth. This path
+  does not require Prometheus.
 - Exposes ``K8S_*`` configuration settings so you can tune replicas, HPA
   behavior, and resources without editing manifests by hand.
 - Includes PodDisruptionBudget resources for core services with configurable
@@ -41,6 +44,48 @@ From PyPI:
 
     pip install tutor-contrib-k8s
 
+Install KEDA in the cluster
+===========================
+
+KEDA is a cluster-level prerequisite for the event-driven autoscaling features;
+this Tutor plugin does not install it. Install KEDA once per Kubernetes cluster,
+not once per Tutor site. The account running Helm must be allowed to create
+cluster-wide CRDs, RBAC resources, and an APIService. KEDA 2.20 requires
+Kubernetes 1.30 or newer.
+
+First confirm that ``kubectl`` points to the intended cluster, then install the
+KEDA 2.20 Helm chart in its dedicated namespace:
+
+.. code-block:: bash
+
+    kubectl config current-context
+    helm repo add kedacore https://kedacore.github.io/charts
+    helm repo update
+    helm upgrade --install keda kedacore/keda \
+      --namespace keda \
+      --create-namespace \
+      --version 2.20.0 \
+      --wait
+
+Verify that its deployments are available and that the required CRDs and
+external metrics API are registered before enabling any ``K8S_*_KEDA_ENABLE``
+setting:
+
+.. code-block:: bash
+
+    kubectl wait --namespace keda \
+      --for=condition=Available deployment --all --timeout=180s
+    kubectl get pods --namespace keda
+    kubectl get crd scaledobjects.keda.sh triggerauthentications.keda.sh
+    kubectl get apiservice v1beta1.external.metrics.k8s.io
+
+The plugin requires KEDA 2.20 or newer because it uses Metrics API endpoint
+aggregation. To upgrade an existing Helm installation, run the same
+``helm upgrade --install`` command with a supported newer chart version. See
+the `official KEDA deployment guide
+<https://keda.sh/docs/2.20/deploy/>`__ for non-Helm installation methods and
+cluster-specific options.
+
 Usage
 *****
 
@@ -62,6 +107,22 @@ set them via ``tutor config save`` or by editing your Tutor config file.
 
 After changing settings, re-render or redeploy your Tutor K8s environment as
 you normally would so the updated templates are applied.
+
+KEDA autoscaling
+================
+
+KEDA autoscaling is disabled by default and requires KEDA 2.20 or newer to be
+installed separately in the cluster. Enable it per workload with
+``K8S_LMS_KEDA_ENABLE``, ``K8S_CMS_KEDA_ENABLE``,
+``K8S_LMS_WORKER_KEDA_ENABLE``, ``K8S_CMS_WORKER_KEDA_ENABLE``,
+``K8S_MFE_KEDA_ENABLE``, or ``K8S_CADDY_KEDA_ENABLE``. Enabling KEDA for a
+workload suppresses that workload's legacy CPU/memory HPA in newly rendered
+manifests.
+
+See `the Verawood autoscaling guide
+<https://github.com/aulasneo/tutor-contrib-k8s/blob/main/docs/autoscaling-v22.md>`__
+for prerequisites, metric design, all settings,
+migration, rollout, verification, and rollback instructions.
 
 Health probes
 =============
@@ -270,7 +331,7 @@ Default settings
    * - ``K8S_LMS_WORKER_HPA_SCALE_UP_PERIOD_SECONDS``
      - ``60``
    * - ``K8S_LMS_WORKER_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS``
-     - ``300``
+     - ``600``
    * - ``K8S_LMS_WORKER_HPA_SCALE_DOWN_PERCENT``
      - ``10``
    * - ``K8S_LMS_WORKER_HPA_SCALE_DOWN_PODS``
@@ -290,7 +351,7 @@ Default settings
    * - ``K8S_CMS_WORKER_HPA_SCALE_UP_PERIOD_SECONDS``
      - ``60``
    * - ``K8S_CMS_WORKER_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS``
-     - ``300``
+     - ``600``
    * - ``K8S_CMS_WORKER_HPA_SCALE_DOWN_PERCENT``
      - ``10``
    * - ``K8S_CMS_WORKER_HPA_SCALE_DOWN_PODS``
