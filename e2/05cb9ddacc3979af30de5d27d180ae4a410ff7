@@ -1,0 +1,31 @@
+.github/workflows/test.yml
+  s_bddfb98a2d4c45::t_b48f929e11c7c9 16
+CHANGELOG.md
+  s_bddfb98a2d4c45::t_b48f929e11c7c9 7
+tutork8s/patches/k8s-deployments
+  s_bddfb98a2d4c45::t_b48f929e11c7c9 164,173,176,187,191,258
+Makefile
+  s_bddfb98a2d4c45::t_b48f929e11c7c9 9
+  s_bddfb98a2d4c45::t_82cdb587556640 27-30
+docs/autoscaling-v22.md
+  s_bddfb98a2d4c45::t_9990f01a9fe596 161
+  s_bddfb98a2d4c45::t_afe5387890e3f5 79-81,147-156,159-160,162-180,184-185,223,228-248,256
+tests/test_redis_auth.py
+  s_bddfb98a2d4c45::t_0e3ef9bfe6c972 1-86
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "e205cb9ddacc3979af30de5d27d180ae4a410ff7",
+  "prompts": {},
+  "sessions": {
+    "s_bddfb98a2d4c45": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0d861-e0c5-7d43-b5f9-e551e597552e",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Andrés González <andres@aulasneo.com>"
+    }
+  }
+}
