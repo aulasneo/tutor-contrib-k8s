@@ -161,7 +161,7 @@ spec:
     "scale_down_period": K8S_CMS_WORKER_HPA_SCALE_DOWN_PERIOD_SECONDS,
   },
 ] %}
-{% if (K8S_LMS_WORKER_KEDA_ENABLE or K8S_CMS_WORKER_KEDA_ENABLE) and REDIS_USERNAME and REDIS_PASSWORD %}
+{% if (K8S_LMS_WORKER_KEDA_ENABLE or K8S_CMS_WORKER_KEDA_ENABLE) and REDIS_PASSWORD %}
 ---
 apiVersion: v1
 kind: Secret
@@ -170,8 +170,10 @@ metadata:
   namespace: {{ K8S_NAMESPACE }}
 type: Opaque
 stringData:
+{% if REDIS_USERNAME %}
   username: |-
     {{ REDIS_USERNAME }}
+{% endif %}
   password: |-
     {{ REDIS_PASSWORD }}
 ---
@@ -182,9 +184,11 @@ metadata:
   namespace: {{ K8S_NAMESPACE }}
 spec:
   secretTargetRef:
+{% if REDIS_USERNAME %}
     - parameter: username
       name: keda-redis-auth
       key: username
+{% endif %}
     - parameter: password
       name: keda-redis-auth
       key: password
@@ -251,7 +255,7 @@ spec:
         listLength: "{{ worker.target }}"
         enableTLS: "{{ K8S_KEDA_REDIS_TLS_ENABLE | lower }}"
         unsafeSsl: "{{ K8S_KEDA_REDIS_UNSAFE_SSL | lower }}"
-      {% if REDIS_USERNAME and REDIS_PASSWORD %}
+      {% if REDIS_PASSWORD %}
       authenticationRef:
         name: keda-redis-auth
       {% endif %}

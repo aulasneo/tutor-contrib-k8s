@@ -76,8 +76,9 @@ Default logical queues are:
 
 Change the queue-name or priority-step settings if an Open edX customization
 changes Celery routing. KEDA connects to `REDIS_HOST:REDIS_PORT` and uses
-`OPENEDX_CELERY_REDIS_DB`. If both `REDIS_USERNAME` and `REDIS_PASSWORD` are
-configured, the plugin renders a namespaced Secret and TriggerAuthentication;
+`OPENEDX_CELERY_REDIS_DB`. If `REDIS_PASSWORD` is configured, the plugin renders a
+namespaced Secret and TriggerAuthentication, adding the username only when
+`REDIS_USERNAME` is set;
 credentials are not placed in ScaledObject metadata. TLS behavior is controlled
 by the settings below. See the [KEDA Redis Lists scaler documentation][redis].
 
@@ -143,18 +144,45 @@ kubectl get pods -n keda
 kubectl get crd scaledobjects.keda.sh triggerauthentications.keda.sh
 ```
 
-Kustomize/apply does not prune resources removed from a rendered file. Delete
-the old plugin-managed HPA for each migrated workload immediately before
-applying its ScaledObject, otherwise two HPAs will write the same Deployment's
-replica count:
+Kustomize/apply does not prune resources removed from a rendered file. Keep
+the legacy HPA until the ScaledObject is ready and its replacement HPA exists.
+KEDA normally rejects a ScaledObject targeting a workload with an existing HPA.
+For this handover, temporarily disable the [HPA ownership check][hpa-validation]
+on the legacy HPA only. This permits a brief overlap between the two HPAs;
+complete the deletion promptly because competing HPAs can disrupt scaling.
+
+Run the following as one block. The subshell stops on errors, so a failed apply
+or readiness check does not delete the legacy HPA. On a fresh installation, the
+missing legacy HPA is skipped:
 
 ```bash
-kubectl delete hpa lms-hpa -n <namespace>
-kubectl apply -k "$(tutor config printroot)/env"
+(
+  set -e
+  namespace='<namespace>'
+  legacy_hpa=$(kubectl get hpa lms-hpa -n "$namespace" --ignore-not-found -o name)
+  if [ -n "$legacy_hpa" ]; then
+    kubectl annotate "$legacy_hpa" -n "$namespace" \
+      validations.keda.sh/hpa-ownership=false --overwrite
+  fi
+  kubectl apply -k "$(tutor config printroot)/env"
+  kubectl wait scaledobject/lms -n "$namespace" \
+    --for=condition=Ready --timeout=120s
+  kubectl get hpa lms-keda-hpa -n "$namespace"
+  kubectl delete hpa lms-hpa -n "$namespace" --ignore-not-found
+)
+```
+
+If the block fails, resolve the error and rerun it promptly. To abandon the
+migration while the legacy HPA still exists, use the rollback below and remove
+its temporary annotation after the legacy environment has been reapplied:
+
+```bash
+kubectl annotate hpa lms-hpa -n <namespace> validations.keda.sh/hpa-ownership-
 ```
 
 Use the corresponding names for other workloads: `cms-hpa`,
-`lms-worker-hpa`, `cms-worker-hpa`, `mfe-hpa`, and `caddy-hpa`.
+`lms-worker-hpa`, `cms-worker-hpa`, `mfe-hpa`, and `caddy-hpa`, with ScaledObject
+names matching the workload and replacement HPAs named `<workload>-keda-hpa`.
 
 ## Verification
 
@@ -192,10 +220,31 @@ KEDA-generated HPA, then apply the environment so the legacy HPA is restored:
 
 ```bash
 tutor config save --set K8S_LMS_KEDA_ENABLE=false
-kubectl delete scaledobject lms -n <namespace>
+kubectl delete scaledobject lms -n <namespace> --ignore-not-found
 kubectl delete hpa lms-keda-hpa -n <namespace> --ignore-not-found
 kubectl apply -k "$(tutor config printroot)/env"
 ```
+
+Apply does not prune shared KEDA resources either. After disabling **all web
+KEDA workloads** (LMS, CMS, MFE, and Caddy), remove the metrics Service:
+
+```bash
+kubectl delete service caddy-metrics -n <namespace> --ignore-not-found
+```
+
+After disabling **both worker KEDA workloads** (LMS worker and CMS worker),
+remove the shared Redis authentication objects, including the Secret containing
+Redis credentials:
+
+```bash
+kubectl delete triggerauthentication keda-redis-auth -n <namespace> --ignore-not-found
+kubectl delete secret keda-redis-auth -n <namespace> --ignore-not-found
+```
+
+Keep these shared resources while any corresponding KEDA workload still needs
+them. For a full rollback, disable all six KEDA settings, delete each workload's
+ScaledObject and KEDA HPA, apply the rendered environment, then run both shared
+resource cleanup blocks above.
 
 Deleting a ScaledObject does not restore an earlier replica count because
 `restoreToOriginalReplicaCount` is disabled. The Deployment remains at its
@@ -204,3 +253,4 @@ current count until the restored HPA reconciles it.
 [metrics-api]: https://keda.sh/docs/2.20/scalers/metrics-api/
 [redis]: https://keda.sh/docs/2.20/scalers/redis-lists/
 [caddy-metrics]: https://caddyserver.com/docs/metrics
+[hpa-validation]: https://keda.sh/docs/2.20/operate/admission-webhooks/

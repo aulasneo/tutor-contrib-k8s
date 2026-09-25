@@ -6,7 +6,7 @@ TWINE = $(PYTHON) -m twine
 TUTOR ?= $(if $(VIRTUAL_ENV),$(VIRTUAL_ENV)/bin/tutor,tutor)
 TUTOR_CMD = $(TUTOR) -r $(CURDIR)
 SRC_DIRS = ./tutork8s
-BLACK_OPTS = --target-version py312 --exclude templates ${SRC_DIRS}
+BLACK_OPTS = --target-version py310 --exclude templates ${SRC_DIRS}
 
 clean: ## Remove build artifacts
 	rm -rf build dist *.egg-info
@@ -24,7 +24,10 @@ dist: ## Upload package to PyPI
 	$(TWINE) upload dist/*
 
 # Warning: These checks are not necessarily run on every PR.
-test: test-lint test-types test-format test-dist test-tutor ## Run some static checks.
+test: test-unit test-lint test-types test-format test-dist test-tutor ## Run some static checks.
+
+test-unit: ## Test rendered manifests
+	$(PYTHON) -m unittest discover -s tests
 
 test-format: ## Run code formatting tests
 	black --check --diff $(BLACK_OPTS)
