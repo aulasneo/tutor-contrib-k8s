@@ -119,7 +119,10 @@ To set the ingress-nginx request body limits for the LMS and Studio:
       --set K8S_LMS_INGRESS_PROXY_BODY_SIZE=250m \
       --set K8S_CMS_INGRESS_PROXY_BODY_SIZE=250m
 
-Each setting defaults to an empty string, which leaves that Ingress unchanged.
+The default limits are ``50m`` for ``K8S_LMS_INGRESS_PROXY_BODY_SIZE`` and
+``250m`` for ``K8S_CMS_INGRESS_PROXY_BODY_SIZE``. These defaults apply the
+annotations automatically to matching Ingresses. Set either value to an empty
+string to omit that patch and leave the corresponding Ingress unchanged.
 The names are derived from ``{{ LMS_HOST | replace(".", "-") }}-to-caddy``
 and ``{{ CMS_HOST | replace(".", "-") }}-to-caddy`` respectively.
 For example, ``studio.elearning.avanxa.com`` targets

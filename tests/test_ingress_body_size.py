@@ -14,7 +14,14 @@ from tutor import hooks
 import tutork8s.plugin  # noqa: F401; registers configuration defaults
 
 
-@unittest.skipUnless(shutil.which("kubectl"), "requires kubectl kustomize")
+@unittest.skipUnless(
+    shutil.which("kubectl")
+    and subprocess.run(
+        ["kubectl", "kustomize", "--help"], capture_output=True, check=False
+    ).returncode
+    == 0,
+    "requires kubectl kustomize",
+)
 class IngressBodySizeTests(unittest.TestCase):
     def test_annotation_merge(self):
         template = jinja2.Environment(undefined=jinja2.StrictUndefined).from_string(

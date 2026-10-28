@@ -12,6 +12,7 @@ import subprocess
 import tempfile
 import time
 import unittest
+from unittest.mock import Mock
 
 import yaml
 from tutor import config, env
@@ -31,11 +32,15 @@ def renderer(**overrides):
 
 
 def resources(render, patch):
-    return {
-        (doc["kind"], doc["metadata"]["name"]): doc
-        for doc in yaml.safe_load_all(render.render_str((PATCHES / patch).read_text()))
-        if doc
-    }
+    rendered = {}
+    for doc in yaml.safe_load_all(render.render_str((PATCHES / patch).read_text())):
+        if not doc:
+            continue
+        key = (doc["kind"], doc["metadata"]["name"])
+        if key in rendered:
+            raise AssertionError(f"Duplicate rendered resource: {key}")
+        rendered[key] = doc
+    return rendered
 
 
 def probe(render):
@@ -44,6 +49,13 @@ def probe(render):
 
 
 class CaddyRenderingTests(unittest.TestCase):
+    def test_duplicate_resources_are_rejected(self):
+        render = Mock()
+        document = "kind: Deployment\nmetadata:\n  name: caddy\n"
+        render.render_str.return_value = document + "---\n" + document
+        with self.assertRaisesRegex(AssertionError, "Duplicate rendered resource"):
+            resources(render, "k8s-override")
+
     def test_probe_hosts_equal_scaler_hosts(self):
         for flags in itertools.product([False, True], repeat=4):
             for tls, proxy in [(False, True), (True, False), (True, True)]:
