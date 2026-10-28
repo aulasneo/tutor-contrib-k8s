@@ -1,0 +1,33 @@
+CHANGELOG.md
+  s_5e6d7df183c79f::t_b9a977947e328b 3,5
+  s_5e6d7df183c79f::t_d791a43f6ad68c 4
+docs/autoscaling-v22.md
+  s_5e6d7df183c79f::t_3c890feac6e377 45-49,51-55,66-92
+  s_5e6d7df183c79f::t_5cba8336d93110 44,50
+tests/test_caddy_metrics.py
+  s_5e6d7df183c79f::t_b9a977947e328b 152,174
+  s_5e6d7df183c79f::t_9f752926aa5851 170-171,181
+  s_5e6d7df183c79f::t_f04d8c80f929c3 52-142,145,161-169,175-180,183-244
+  s_5e6d7df183c79f::t_754c54d630f536 1-51,143-144,146-151,153-160,172-173,182,245-251
+tutork8s/patches/k8s-override
+  s_5e6d7df183c79f::t_b078e23fde0745 191-213,215-218
+  s_5e6d7df183c79f::t_519118a9f27770 214,219-229
+tutork8s/templates/k8s/partials/caddy-metrics-warmup.sh
+  s_5e6d7df183c79f::t_6116b732b1abcc 1-25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b9d887bffc6f7c259330d10a10cb7608af33a333",
+  "prompts": {},
+  "sessions": {
+    "s_5e6d7df183c79f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1833a-090c-7961-b38a-d5c9dc3eeb81",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Andrés González <andres@aulasneo.com>"
+    }
+  }
+}
