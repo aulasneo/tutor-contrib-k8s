@@ -1,0 +1,23 @@
+README.rst
+  s_5e6d7df183c79f::t_170661a06e8455 122-125
+tests/test_caddy_metrics.py
+  s_5e6d7df183c79f::t_721d2a561092da 15,35-43,52-58
+tests/test_ingress_body_size.py
+  s_5e6d7df183c79f::t_d9366a50bd7190 17-24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "055c7b046208adb5250918f9f21a1f6bdcd0f421",
+  "prompts": {},
+  "sessions": {
+    "s_5e6d7df183c79f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1833a-090c-7961-b38a-d5c9dc3eeb81",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Andrés González <andres@aulasneo.com>"
+    }
+  }
+}
