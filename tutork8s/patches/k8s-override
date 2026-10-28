@@ -188,3 +188,42 @@ spec:
             limits:
               cpu: {{ K8S_CADDY_CPU_LIMIT }}
               memory: {{ K8S_CADDY_MEMORY_LIMIT }}
+
+          {% if K8S_LMS_KEDA_ENABLE or K8S_CMS_KEDA_ENABLE or K8S_MFE_KEDA_ENABLE or K8S_CADDY_KEDA_ENABLE %}
+          {% set warmup = namespace(hosts=[]) %}
+          {% if K8S_LMS_KEDA_ENABLE or K8S_CADDY_KEDA_ENABLE %}
+          {% set warmup.hosts = warmup.hosts + [LMS_HOST] %}
+          {% endif %}
+          {% if K8S_CMS_KEDA_ENABLE or K8S_CADDY_KEDA_ENABLE %}
+          {% set warmup.hosts = warmup.hosts + [CMS_HOST] %}
+          {% endif %}
+          {% if K8S_MFE_KEDA_ENABLE %}
+          {% set warmup.hosts = warmup.hosts + [K8S_MFE_KEDA_HOST or "apps." ~ LMS_HOST] %}
+          {% endif %}
+          {% if K8S_CADDY_KEDA_ENABLE %}
+          {% set warmup.hosts = warmup.hosts + K8S_CADDY_KEDA_EXTRA_HOSTS %}
+          {% endif %}
+          # Startup probes run on every container start and gate Service readiness.
+          # Once successful, Kubernetes stops probing: no synthetic scrape traffic.
+          startupProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -ec
+                - |
+                  {% include "k8s/partials/caddy-metrics-warmup.sh" %}
+            periodSeconds: 10
+            timeoutSeconds: {{ 3 * ((warmup.hosts | unique | list | length) + 1) + 5 }}
+            failureThreshold: 30
+          {% endif %}
+{% if ENABLE_HTTPS and ENABLE_WEB_PROXY and (K8S_LMS_KEDA_ENABLE or K8S_CMS_KEDA_ENABLE or K8S_MFE_KEDA_ENABLE or K8S_CADDY_KEDA_ENABLE) %}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: caddy
+spec:
+  # ACME HTTP/TLS challenges must reach Caddy before the TLS warm-up succeeds.
+  # Only the public Service bypasses readiness; caddy-metrics still gates KEDA.
+  publishNotReadyAddresses: true
+{% endif %}

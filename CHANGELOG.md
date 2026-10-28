@@ -1,5 +1,8 @@
 # Change log
 
+## Unreleased
+- fix: initialize and verify per-host KEDA metrics on every Caddy container startup before admitting the pod to metrics Service endpoints
+
 ## Version 22.0.0 (2026-09-25)
 - feat: target Open edX Verawood with Tutor 22.x
 - feat: add opt-in KEDA autoscaling based on Caddy in-flight requests and Celery Redis queue depth
