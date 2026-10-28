@@ -1,0 +1,17 @@
+{% for host, body_size in [(LMS_HOST, K8S_LMS_INGRESS_PROXY_BODY_SIZE), (CMS_HOST, K8S_CMS_INGRESS_PROXY_BODY_SIZE)] %}
+{% if body_size %}
+{% set ingress_name = (host | replace(".", "-")) ~ "-to-caddy" %}
+- target:
+    group: networking.k8s.io
+    version: v1
+    kind: Ingress
+    name: {{ ingress_name | tojson }}
+  patch: |-
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+      name: {{ ingress_name | tojson }}
+      annotations:
+        nginx.ingress.kubernetes.io/proxy-body-size: {{ body_size | string | tojson }}
+{% endif %}
+{% endfor %}

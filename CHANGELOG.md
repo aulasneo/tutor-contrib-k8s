@@ -1,6 +1,7 @@
 # Change log
 
 ## Unreleased
+- feat: add optional configurable LMS and CMS Ingress request body size annotations
 - fix: initialize and verify per-host KEDA metrics on every Caddy container startup before admitting the pod to metrics Service endpoints
 
 ## Version 22.0.0 (2026-09-25)

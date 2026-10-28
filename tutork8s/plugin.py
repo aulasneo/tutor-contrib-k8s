@@ -16,6 +16,9 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         # Each new setting is a pair: (setting_name, default_value).
         # Prefix your setting names with 'K8S_'.
         ("K8S_VERSION", __version__),
+        # Optional annotations for LMS/CMS Ingresses supplied by another plugin.
+        ("K8S_LMS_INGRESS_PROXY_BODY_SIZE", "50m"),
+        ("K8S_CMS_INGRESS_PROXY_BODY_SIZE", "250m"),
         # Open edX application health probes
         ("K8S_OPENEDX_HEALTH_PROBES_ENABLE", True),
         ("K8S_OPENEDX_STARTUP_PROBE_PERIOD_SECONDS", 10),
