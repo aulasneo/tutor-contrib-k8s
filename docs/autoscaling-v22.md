@@ -41,8 +41,18 @@ When any web KEDA setting is enabled, the plugin:
    cardinality.
 2. Adds an internal `:9180` Caddy metrics listener and a separate
    `caddy-metrics` ClusterIP Service. Tutor's public `caddy` LoadBalancer Service
-   is not modified, and no ingress route or public load balancer port is created.
-3. Creates one Metrics API trigger per host. The trigger selects
+   exposes no new port, and no new ingress route is created.
+3. Adds a Caddy container startup probe. On each container start it sends a
+   local `GET /robots.txt` for every host selected by the enabled web scalers,
+   including custom MFE and extra Caddy hosts, with the correct Host header.
+   It then verifies that `/metrics` contains each exact host's numeric
+   `caddy_http_requests_in_flight{handler="subroute"}` series. Until that
+   succeeds, the pod is not ready and is excluded from metrics Service endpoints.
+   Kubernetes retries every 10 seconds and restarts the container after 30
+   consecutive failures. Probe timeouts allow three seconds per request plus
+   time for verification. The probe stops after success; scrapes generate no
+   warm-up requests.
+4. Creates one Metrics API trigger per host. The trigger selects
    `caddy_http_requests_in_flight` with exact `host` and
    `handler="subroute"` labels, then sums the gauge over all ready Caddy
    endpoints.
@@ -53,7 +63,33 @@ When any web KEDA setting is enabled, the plugin:
 The Caddy ScaledObject composes the LMS, CMS, enabled MFE, and
 `K8S_CADDY_KEDA_EXTRA_HOSTS` gauges. Extra hosts must correspond to configured
 Caddy reverse-proxy hosts; a selector for a nonexistent series makes that
-trigger unhealthy.
+trigger unhealthy and prevents a new Caddy pod from passing its startup probe.
+
+Warm-up requests never use external DNS, an outbound proxy, or redirects.
+When Caddy terminates TLS itself, `curl --resolve` keeps the connection local
+while supplying the host's SNI; certificate verification is skipped only for
+these loopback requests. Caddy must still be able to serve TLS for that host.
+In this mode only, the public `caddy` Service publishes unready endpoints so
+ACME HTTP/TLS challenges can reach Caddy before certificate issuance completes.
+The separate `caddy-metrics` Service still admits only ready pods. This avoids
+a certificate/bootstrap deadlock; public traffic may reach a starting pod as
+it could before this plugin added the startup probe.
+A 404 or upstream 502 on `/robots.txt` is acceptable: it initializes the route
+without requiring a healthy application backend. Custom routes should keep
+this GET path harmless. A successful HTTP response alone is insufficient;
+missing or incompatible metric labels fail verification.
+
+Tutor 22.0.2 ships Caddy 2.11.4. Integration coverage also checks 2.10.2.
+Custom Caddy images must provide `/bin/sh`, `curl`, and `awk`, and expose the
+per-host `subroute` gauge. Older images such as official 2.9.1 lack `curl`;
+upgrade those images before enabling this startup probe. Connection failures,
+non-success metrics responses, malformed exposition, and missing series are
+not converted to zero. KEDA's existing error handling and fallback remain
+unchanged (the Metrics API scaler does not use `ignoreNullValues`).
+
+Run the focused real-Caddy checks with
+`RUN_CADDY_TESTS=1 python -m unittest discover -s tests -k fresh` (Docker required).
+The normal unit suite checks rendered host coverage and scaler settings.
 
 The in-flight gauge is instantaneous. It reacts well to sustained concurrency,
 but a 15-second poll can miss a very short spike. For known events, pre-warm the

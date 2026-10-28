@@ -108,6 +108,33 @@ set them via ``tutor config save`` or by editing your Tutor config file.
 After changing settings, re-render or redeploy your Tutor K8s environment as
 you normally would so the updated templates are applied.
 
+LMS and CMS Ingress upload limits
+=====================================
+
+To set the ingress-nginx request body limits for the LMS and Studio:
+
+.. code-block:: bash
+
+    tutor config save \
+      --set K8S_LMS_INGRESS_PROXY_BODY_SIZE=250m \
+      --set K8S_CMS_INGRESS_PROXY_BODY_SIZE=250m
+
+The default limits are ``50m`` for ``K8S_LMS_INGRESS_PROXY_BODY_SIZE`` and
+``250m`` for ``K8S_CMS_INGRESS_PROXY_BODY_SIZE``. These defaults apply the
+annotations automatically to matching Ingresses. Set either value to an empty
+string to omit that patch and leave the corresponding Ingress unchanged.
+The names are derived from ``{{ LMS_HOST | replace(".", "-") }}-to-caddy``
+and ``{{ CMS_HOST | replace(".", "-") }}-to-caddy`` respectively.
+For example, ``studio.elearning.avanxa.com`` targets
+``studio-elearning-avanxa-com-to-caddy``. The two limits can be set independently.
+
+The Ingress must be supplied by another plugin or resource in the same Tutor
+Kustomize build. This plugin does not create it; an unmatched target has no
+effect. The patch merges only ``nginx.ingress.kubernetes.io/proxy-body-size``
+and preserves other annotations, TLS configuration, and routing. Reapply the
+rendered manifests through your normal deployment workflow. Caddy and the
+application retain their own upload limits.
+
 KEDA autoscaling
 ================
 
