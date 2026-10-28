@@ -109,7 +109,7 @@ After changing settings, re-render or redeploy your Tutor K8s environment as
 you normally would so the updated templates are applied.
 
 LMS and CMS Ingress upload limits
-================================
+=====================================
 
 To set the ingress-nginx request body limits for the LMS and Studio:
 
