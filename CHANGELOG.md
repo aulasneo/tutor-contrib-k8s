@@ -1,6 +1,6 @@
 # Change log
 
-## Unreleased
+## Version 22.2.0 (2026-10-30)
 - Update LMS, CMS, and worker CPU and memory resource defaults.
 - Shorten HPA scale-down stabilization to 120 seconds for LMS, CMS, MFE, and Caddy, and 300 seconds for workers; set the percentage policy to 100%. The existing one-pod-per-60-seconds policy and `Min` selection continue to limit the rate.
 - Disable LMS and CMS worker PDBs by default. If you rely on them, set `K8S_LMS_WORKER_PDB_ENABLE` and `K8S_CMS_WORKER_PDB_ENABLE` to `true` in your configuration.
