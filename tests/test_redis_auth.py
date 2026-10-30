@@ -49,6 +49,8 @@ class RedisAuthenticationTests(unittest.TestCase):
                             key, resources, f"Duplicate rendered resource: {key}"
                         )
                         resources[key] = doc
+                    for name in ("lms-worker-pdb", "cms-worker-pdb"):
+                        self.assertNotIn(("PodDisruptionBudget", name), resources)
                     auth_expected = bool((lms or cms) and password)
                     for kind in ["Secret", "TriggerAuthentication"]:
                         self.assertEqual(

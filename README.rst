@@ -318,9 +318,9 @@ Default settings
    * - ``K8S_LMS_HPA_SCALE_UP_PERIOD_SECONDS``
      - ``60``
    * - ``K8S_LMS_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS``
-     - ``300``
+     - ``120``
    * - ``K8S_LMS_HPA_SCALE_DOWN_PERCENT``
-     - ``10``
+     - ``100``
    * - ``K8S_LMS_HPA_SCALE_DOWN_PODS``
      - ``1``
    * - ``K8S_LMS_HPA_SCALE_DOWN_PERIOD_SECONDS``
@@ -338,9 +338,9 @@ Default settings
    * - ``K8S_CMS_HPA_SCALE_UP_PERIOD_SECONDS``
      - ``60``
    * - ``K8S_CMS_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS``
-     - ``300``
+     - ``120``
    * - ``K8S_CMS_HPA_SCALE_DOWN_PERCENT``
-     - ``10``
+     - ``100``
    * - ``K8S_CMS_HPA_SCALE_DOWN_PODS``
      - ``1``
    * - ``K8S_CMS_HPA_SCALE_DOWN_PERIOD_SECONDS``
@@ -358,9 +358,9 @@ Default settings
    * - ``K8S_LMS_WORKER_HPA_SCALE_UP_PERIOD_SECONDS``
      - ``60``
    * - ``K8S_LMS_WORKER_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS``
-     - ``600``
+     - ``300``
    * - ``K8S_LMS_WORKER_HPA_SCALE_DOWN_PERCENT``
-     - ``10``
+     - ``100``
    * - ``K8S_LMS_WORKER_HPA_SCALE_DOWN_PODS``
      - ``1``
    * - ``K8S_LMS_WORKER_HPA_SCALE_DOWN_PERIOD_SECONDS``
@@ -378,9 +378,9 @@ Default settings
    * - ``K8S_CMS_WORKER_HPA_SCALE_UP_PERIOD_SECONDS``
      - ``60``
    * - ``K8S_CMS_WORKER_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS``
-     - ``600``
+     - ``300``
    * - ``K8S_CMS_WORKER_HPA_SCALE_DOWN_PERCENT``
-     - ``10``
+     - ``100``
    * - ``K8S_CMS_WORKER_HPA_SCALE_DOWN_PODS``
      - ``1``
    * - ``K8S_CMS_WORKER_HPA_SCALE_DOWN_PERIOD_SECONDS``
@@ -398,9 +398,9 @@ Default settings
    * - ``K8S_MFE_HPA_SCALE_UP_PERIOD_SECONDS``
      - ``60``
    * - ``K8S_MFE_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS``
-     - ``300``
+     - ``120``
    * - ``K8S_MFE_HPA_SCALE_DOWN_PERCENT``
-     - ``10``
+     - ``100``
    * - ``K8S_MFE_HPA_SCALE_DOWN_PODS``
      - ``1``
    * - ``K8S_MFE_HPA_SCALE_DOWN_PERIOD_SECONDS``
@@ -418,9 +418,9 @@ Default settings
    * - ``K8S_CADDY_HPA_SCALE_UP_PERIOD_SECONDS``
      - ``60``
    * - ``K8S_CADDY_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS``
-     - ``300``
+     - ``120``
    * - ``K8S_CADDY_HPA_SCALE_DOWN_PERCENT``
-     - ``10``
+     - ``100``
    * - ``K8S_CADDY_HPA_SCALE_DOWN_PODS``
      - ``1``
    * - ``K8S_CADDY_HPA_SCALE_DOWN_PERIOD_SECONDS``
@@ -428,9 +428,9 @@ Default settings
    * - ``K8S_CMS_CPU_REQUEST``
      - ``20m``
    * - ``K8S_CMS_MEMORY_REQUEST``
-     - ``1.5Gi``
+     - ``768Mi``
    * - ``K8S_CMS_CPU_LIMIT``
-     - ``100m``
+     - ``500m``
    * - ``K8S_CMS_MEMORY_LIMIT``
      - ``2Gi``
    * - ``K8S_CMS_REPLICAS``
@@ -438,13 +438,13 @@ Default settings
    * - ``K8S_CMS_MAX_REPLICAS``
      - ``3``
    * - ``K8S_CMS_WORKER_CPU_REQUEST``
-     - ``20m``
+     - ``25m``
    * - ``K8S_CMS_WORKER_MEMORY_REQUEST``
-     - ``1.5Gi``
+     - ``1Gi``
    * - ``K8S_CMS_WORKER_CPU_LIMIT``
-     - ``100m``
+     - ``500m``
    * - ``K8S_CMS_WORKER_MEMORY_LIMIT``
-     - ``2Gi``
+     - ``3Gi``
    * - ``K8S_CMS_WORKER_REPLICAS``
      - ``1``
    * - ``K8S_CMS_WORKER_MAX_REPLICAS``
@@ -452,9 +452,9 @@ Default settings
    * - ``K8S_LMS_CPU_REQUEST``
      - ``20m``
    * - ``K8S_LMS_MEMORY_REQUEST``
-     - ``1.5Gi``
+     - ``1Gi``
    * - ``K8S_LMS_CPU_LIMIT``
-     - ``100m``
+     - ``500m``
    * - ``K8S_LMS_MEMORY_LIMIT``
      - ``2Gi``
    * - ``K8S_LMS_REPLICAS``
@@ -462,13 +462,13 @@ Default settings
    * - ``K8S_LMS_MAX_REPLICAS``
      - ``3``
    * - ``K8S_LMS_WORKER_CPU_REQUEST``
-     - ``20m``
+     - ``25m``
    * - ``K8S_LMS_WORKER_MEMORY_REQUEST``
-     - ``1.5Gi``
+     - ``1Gi``
    * - ``K8S_LMS_WORKER_CPU_LIMIT``
-     - ``100m``
+     - ``500m``
    * - ``K8S_LMS_WORKER_MEMORY_LIMIT``
-     - ``2Gi``
+     - ``3Gi``
    * - ``K8S_LMS_WORKER_REPLICAS``
      - ``1``
    * - ``K8S_LMS_WORKER_MAX_REPLICAS``
@@ -500,11 +500,11 @@ Default settings
    * - ``K8S_CMS_PDB_ENABLE``
      - ``True``
    * - ``K8S_CMS_WORKER_PDB_ENABLE``
-     - ``True``
+     - ``False``
    * - ``K8S_LMS_PDB_ENABLE``
      - ``True``
    * - ``K8S_LMS_WORKER_PDB_ENABLE``
-     - ``True``
+     - ``False``
    * - ``K8S_MFE_PDB_ENABLE``
      - ``True``
    * - ``K8S_CADDY_PDB_ENABLE``
