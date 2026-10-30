@@ -1,0 +1,33 @@
+README.rst
+  s_579624f1e2d59f::t_9745b5c5cbc7bb 431,433,441,443,445,447,455,457,465,467,469,471,503,507
+tests/test_redis_auth.py
+  s_579624f1e2d59f::t_d5c6b1e6053fda 52-53
+CHANGELOG.md
+  s_38704009c4e42f::t_42edb9ab55c2e4 3-5
+tutork8s/plugin.py
+  s_579624f1e2d59f::t_e736b40d66739f 88-89,102-103,116-117,130-131,144-145,158-159,197-198,203-206,211-212,217-220,239,241
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e87973cdac6383909bf7bf9b394ffdba4f31cba3",
+  "prompts": {},
+  "sessions": {
+    "s_38704009c4e42f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a18caa-a8fb-7461-a2b2-ef98bd11fa23",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Andrés González <andres@aulasneo.com>"
+    },
+    "s_579624f1e2d59f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a18d61-d9e6-7b82-b1b1-61cd79f8bfeb",
+        "model": "gpt-6.1-terra"
+      },
+      "human_author": "Andrés González <andres@aulasneo.com>"
+    }
+  }
+}
