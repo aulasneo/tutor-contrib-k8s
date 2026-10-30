@@ -118,9 +118,10 @@ namespaced Secret and TriggerAuthentication, adding the username only when
 credentials are not placed in ScaledObject metadata. TLS behavior is controlled
 by the settings below. See the [KEDA Redis Lists scaler documentation][redis].
 
-Worker scale-down stabilization defaults to 600 seconds to avoid removing
-capacity during gaps between task bursts. Web workloads retain the existing
-300-second default.
+Worker scale-down stabilization defaults to 300 seconds; LMS, CMS, MFE,
+and Caddy default to 120 seconds. The scale-down percentage policy defaults to
+100%, alongside a one-pod-per-60-seconds policy. With `selectPolicy: Min`, the
+more restrictive policy applies, limiting scale-down to one pod per period.
 
 ## Settings
 

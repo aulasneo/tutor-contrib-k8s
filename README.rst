@@ -318,9 +318,9 @@ Default settings
    * - ``K8S_LMS_HPA_SCALE_UP_PERIOD_SECONDS``
      - ``60``
    * - ``K8S_LMS_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS``
-     - ``300``
+     - ``120``
    * - ``K8S_LMS_HPA_SCALE_DOWN_PERCENT``
-     - ``10``
+     - ``100``
    * - ``K8S_LMS_HPA_SCALE_DOWN_PODS``
      - ``1``
    * - ``K8S_LMS_HPA_SCALE_DOWN_PERIOD_SECONDS``
@@ -338,9 +338,9 @@ Default settings
    * - ``K8S_CMS_HPA_SCALE_UP_PERIOD_SECONDS``
      - ``60``
    * - ``K8S_CMS_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS``
-     - ``300``
+     - ``120``
    * - ``K8S_CMS_HPA_SCALE_DOWN_PERCENT``
-     - ``10``
+     - ``100``
    * - ``K8S_CMS_HPA_SCALE_DOWN_PODS``
      - ``1``
    * - ``K8S_CMS_HPA_SCALE_DOWN_PERIOD_SECONDS``
@@ -358,9 +358,9 @@ Default settings
    * - ``K8S_LMS_WORKER_HPA_SCALE_UP_PERIOD_SECONDS``
      - ``60``
    * - ``K8S_LMS_WORKER_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS``
-     - ``600``
+     - ``300``
    * - ``K8S_LMS_WORKER_HPA_SCALE_DOWN_PERCENT``
-     - ``10``
+     - ``100``
    * - ``K8S_LMS_WORKER_HPA_SCALE_DOWN_PODS``
      - ``1``
    * - ``K8S_LMS_WORKER_HPA_SCALE_DOWN_PERIOD_SECONDS``
@@ -378,9 +378,9 @@ Default settings
    * - ``K8S_CMS_WORKER_HPA_SCALE_UP_PERIOD_SECONDS``
      - ``60``
    * - ``K8S_CMS_WORKER_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS``
-     - ``600``
+     - ``300``
    * - ``K8S_CMS_WORKER_HPA_SCALE_DOWN_PERCENT``
-     - ``10``
+     - ``100``
    * - ``K8S_CMS_WORKER_HPA_SCALE_DOWN_PODS``
      - ``1``
    * - ``K8S_CMS_WORKER_HPA_SCALE_DOWN_PERIOD_SECONDS``
@@ -398,9 +398,9 @@ Default settings
    * - ``K8S_MFE_HPA_SCALE_UP_PERIOD_SECONDS``
      - ``60``
    * - ``K8S_MFE_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS``
-     - ``300``
+     - ``120``
    * - ``K8S_MFE_HPA_SCALE_DOWN_PERCENT``
-     - ``10``
+     - ``100``
    * - ``K8S_MFE_HPA_SCALE_DOWN_PODS``
      - ``1``
    * - ``K8S_MFE_HPA_SCALE_DOWN_PERIOD_SECONDS``
@@ -418,9 +418,9 @@ Default settings
    * - ``K8S_CADDY_HPA_SCALE_UP_PERIOD_SECONDS``
      - ``60``
    * - ``K8S_CADDY_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS``
-     - ``300``
+     - ``120``
    * - ``K8S_CADDY_HPA_SCALE_DOWN_PERCENT``
-     - ``10``
+     - ``100``
    * - ``K8S_CADDY_HPA_SCALE_DOWN_PODS``
      - ``1``
    * - ``K8S_CADDY_HPA_SCALE_DOWN_PERIOD_SECONDS``
