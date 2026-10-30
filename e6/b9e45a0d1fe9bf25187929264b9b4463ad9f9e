@@ -1,0 +1,23 @@
+docs/autoscaling-v22.md
+  s_579624f1e2d59f::t_467fd13a3f79fd 121-124
+README.rst
+  s_579624f1e2d59f::t_467fd13a3f79fd 321,323,341,343,361,363,381,383,401,403,421,423
+CHANGELOG.md
+  s_579624f1e2d59f::t_467fd13a3f79fd 4-6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e6b9e45a0d1fe9bf25187929264b9b4463ad9f9e",
+  "prompts": {},
+  "sessions": {
+    "s_579624f1e2d59f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a18d61-d9e6-7b82-b1b1-61cd79f8bfeb",
+        "model": "gpt-6.1-terra"
+      },
+      "human_author": "Andrés González <andres@aulasneo.com>"
+    }
+  }
+}
