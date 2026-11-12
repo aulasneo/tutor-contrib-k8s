@@ -17,7 +17,7 @@ spec:
           {% if K8S_OPENEDX_HEALTH_PROBES_ENABLE %}
           startupProbe:
             httpGet:
-              path: /heartbeat
+              path: /api/contentstore/v0/heartbeat
               port: 8000
               httpHeaders:
                 - name: Host
@@ -102,7 +102,7 @@ spec:
           {% if K8S_OPENEDX_HEALTH_PROBES_ENABLE %}
           startupProbe:
             httpGet:
-              path: /heartbeat
+              path: /api/courses/v1/courses
               port: 8000
               httpHeaders:
                 - name: Host
