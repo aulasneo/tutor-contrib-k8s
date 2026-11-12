@@ -23,9 +23,9 @@ What it does
 - Adds VerticalPodAutoscaler templates for core services with configurable
   update mode, min/max allowed resources, and controlled resources.
 - Adds startup, readiness, and liveness probes to the LMS and CMS deployments.
-  The startup probe calls the Open edX ``/heartbeat`` endpoint with the required
-  internal ``Host`` header, so a pod does not join its Service until Open edX can
-  genuinely serve. Readiness and liveness use TCP checks, so a stall in a shared
+  Startup probes call ``/api/courses/v1/courses`` on LMS and
+  ``/api/contentstore/v0/heartbeat`` on CMS with their internal ``Host`` headers.
+  Readiness and liveness use TCP checks by default, so a stall in a shared
   dependency cannot eject or restart every replica at once.
 
 
@@ -155,13 +155,14 @@ Health probes
 =============
 
 LMS and CMS health probes are enabled by default with
-``K8S_OPENEDX_HEALTH_PROBES_ENABLE``. The startup probe calls ``/heartbeat`` on
-port 8000 and allows up to 10 minutes for Open edX to initialize. Because
-Kubernetes suspends the readiness and liveness probes until the startup probe
-first succeeds, no pod joins its Service until Open edX has genuinely answered a
-full health check.
+``K8S_OPENEDX_HEALTH_PROBES_ENABLE``. The startup probes call
+``/api/courses/v1/courses`` on LMS and ``/api/contentstore/v0/heartbeat`` on CMS,
+on port 8000 with ``Host: lms`` and ``Host: cms`` respectively. By default they
+allow up to 10 minutes for Open edX to initialize. Kubernetes suspends readiness
+and liveness probes until the startup probe first succeeds; the pod can then
+join its Service once readiness succeeds.
 
-Readiness and liveness then use TCP checks on port 8000 rather than
+By default, readiness and liveness then use TCP checks on port 8000 rather than
 ``/heartbeat``. This is deliberate. ``/heartbeat`` verifies MySQL and the
 modulestore, which every pod shares, so a database stall fails the probe on all
 replicas simultaneously:
