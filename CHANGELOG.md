@@ -1,6 +1,6 @@
 # Change log
 
-## Unreleased
+## Version 22.3.0 (2026-11-12)
 
 - Improve startup probes for lms and cms.
 
