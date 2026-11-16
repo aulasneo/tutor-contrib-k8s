@@ -1,6 +1,6 @@
 # Change log
 
-## Unreleased
+## Version 22.4.0 (2026-11-16)
 
 - Restore the LMS and CMS startup probes to /heartbeat.
 - Make the LMS, CMS, and worker termination grace periods and pre-stop delays configurable (90 and 15 seconds by default).
