@@ -108,6 +108,21 @@ set them via ``tutor config save`` or by editing your Tutor config file.
 After changing settings, re-render or redeploy your Tutor K8s environment as
 you normally would so the updated templates are applied.
 
+Graceful shutdown
+=================
+
+LMS, CMS, and their workers each have a configurable Pod termination grace
+period and pre-stop sleep. All four default to 90 seconds of total grace and a
+15-second sleep before the container receives its stop signal. The sleep is
+part of the grace period, leaving about 75 seconds for the process to stop.
+Set the values independently for each deployment as needed. For example:
+
+.. code-block:: bash
+
+    tutor config save \
+      --set K8S_LMS_TERMINATION_GRACE_PERIOD_SECONDS=120 \
+      --set K8S_LMS_PRESTOP_SLEEP=20
+
 LMS and CMS Ingress upload limits
 =====================================
 
@@ -438,6 +453,10 @@ Default settings
      - ``1``
    * - ``K8S_CMS_MAX_REPLICAS``
      - ``3``
+   * - ``K8S_CMS_TERMINATION_GRACE_PERIOD_SECONDS``
+     - ``90``
+   * - ``K8S_CMS_PRESTOP_SLEEP``
+     - ``15``
    * - ``K8S_CMS_WORKER_CPU_REQUEST``
      - ``25m``
    * - ``K8S_CMS_WORKER_MEMORY_REQUEST``
@@ -450,6 +469,10 @@ Default settings
      - ``1``
    * - ``K8S_CMS_WORKER_MAX_REPLICAS``
      - ``3``
+   * - ``K8S_CMS_WORKER_TERMINATION_GRACE_PERIOD_SECONDS``
+     - ``90``
+   * - ``K8S_CMS_WORKER_PRESTOP_SLEEP``
+     - ``15``
    * - ``K8S_LMS_CPU_REQUEST``
      - ``20m``
    * - ``K8S_LMS_MEMORY_REQUEST``
@@ -462,6 +485,10 @@ Default settings
      - ``1``
    * - ``K8S_LMS_MAX_REPLICAS``
      - ``3``
+   * - ``K8S_LMS_TERMINATION_GRACE_PERIOD_SECONDS``
+     - ``90``
+   * - ``K8S_LMS_PRESTOP_SLEEP``
+     - ``15``
    * - ``K8S_LMS_WORKER_CPU_REQUEST``
      - ``25m``
    * - ``K8S_LMS_WORKER_MEMORY_REQUEST``
@@ -474,6 +501,10 @@ Default settings
      - ``1``
    * - ``K8S_LMS_WORKER_MAX_REPLICAS``
      - ``3``
+   * - ``K8S_LMS_WORKER_TERMINATION_GRACE_PERIOD_SECONDS``
+     - ``90``
+   * - ``K8S_LMS_WORKER_PRESTOP_SLEEP``
+     - ``15``
    * - ``K8S_MFE_CPU_REQUEST``
      - ``10m``
    * - ``K8S_MFE_MEMORY_REQUEST``
