@@ -23,8 +23,7 @@ What it does
 - Adds VerticalPodAutoscaler templates for core services with configurable
   update mode, min/max allowed resources, and controlled resources.
 - Adds startup, readiness, and liveness probes to the LMS and CMS deployments.
-  Startup probes call ``/api/courses/v1/courses`` on LMS and
-  ``/api/contentstore/v0/heartbeat`` on CMS with their internal ``Host`` headers.
+  Startup probes call ``/heartbeat`` with their internal ``Host`` headers.
   Readiness and liveness use TCP checks by default, so a stall in a shared
   dependency cannot eject or restart every replica at once.
 
@@ -108,6 +107,24 @@ set them via ``tutor config save`` or by editing your Tutor config file.
 After changing settings, re-render or redeploy your Tutor K8s environment as
 you normally would so the updated templates are applied.
 
+Graceful shutdown
+=================
+
+LMS, CMS, and their workers each have a configurable Pod termination grace
+period and pre-stop sleep. All four default to 90 seconds of total grace and a
+15-second sleep before the container receives its stop signal. The sleep is
+part of the grace period, leaving about 75 seconds for the process to stop.
+For each deployment, keep ``K8S_*_PRESTOP_SLEEP`` shorter than its
+``K8S_*_TERMINATION_GRACE_PERIOD_SECONDS`` and leave enough time after the
+sleep for the process to handle the stop signal. Set the values independently
+as needed. For example:
+
+.. code-block:: bash
+
+    tutor config save \
+      --set K8S_LMS_TERMINATION_GRACE_PERIOD_SECONDS=120 \
+      --set K8S_LMS_PRESTOP_SLEEP=20
+
 LMS and CMS Ingress upload limits
 =====================================
 
@@ -155,15 +172,14 @@ Health probes
 =============
 
 LMS and CMS health probes are enabled by default with
-``K8S_OPENEDX_HEALTH_PROBES_ENABLE``. The startup probes call
-``/api/courses/v1/courses`` on LMS and ``/api/contentstore/v0/heartbeat`` on CMS,
+``K8S_OPENEDX_HEALTH_PROBES_ENABLE``. The startup probes call ``/heartbeat``
 on port 8000 with ``Host: lms`` and ``Host: cms`` respectively. By default they
 allow up to 10 minutes for Open edX to initialize. Kubernetes suspends readiness
 and liveness probes until the startup probe first succeeds; the pod can then
 join its Service once readiness succeeds.
 
-By default, readiness and liveness then use TCP checks on port 8000 rather than
-``/heartbeat``. This is deliberate. ``/heartbeat`` verifies MySQL and the
+By default, readiness and liveness then use TCP checks on port 8000. This is
+deliberate. ``/heartbeat`` verifies MySQL and the
 modulestore, which every pod shares, so a database stall fails the probe on all
 replicas simultaneously:
 
@@ -438,6 +454,10 @@ Default settings
      - ``1``
    * - ``K8S_CMS_MAX_REPLICAS``
      - ``3``
+   * - ``K8S_CMS_TERMINATION_GRACE_PERIOD_SECONDS``
+     - ``90``
+   * - ``K8S_CMS_PRESTOP_SLEEP``
+     - ``15``
    * - ``K8S_CMS_WORKER_CPU_REQUEST``
      - ``25m``
    * - ``K8S_CMS_WORKER_MEMORY_REQUEST``
@@ -450,6 +470,10 @@ Default settings
      - ``1``
    * - ``K8S_CMS_WORKER_MAX_REPLICAS``
      - ``3``
+   * - ``K8S_CMS_WORKER_TERMINATION_GRACE_PERIOD_SECONDS``
+     - ``90``
+   * - ``K8S_CMS_WORKER_PRESTOP_SLEEP``
+     - ``15``
    * - ``K8S_LMS_CPU_REQUEST``
      - ``20m``
    * - ``K8S_LMS_MEMORY_REQUEST``
@@ -462,6 +486,10 @@ Default settings
      - ``1``
    * - ``K8S_LMS_MAX_REPLICAS``
      - ``3``
+   * - ``K8S_LMS_TERMINATION_GRACE_PERIOD_SECONDS``
+     - ``90``
+   * - ``K8S_LMS_PRESTOP_SLEEP``
+     - ``15``
    * - ``K8S_LMS_WORKER_CPU_REQUEST``
      - ``25m``
    * - ``K8S_LMS_WORKER_MEMORY_REQUEST``
@@ -474,6 +502,10 @@ Default settings
      - ``1``
    * - ``K8S_LMS_WORKER_MAX_REPLICAS``
      - ``3``
+   * - ``K8S_LMS_WORKER_TERMINATION_GRACE_PERIOD_SECONDS``
+     - ``90``
+   * - ``K8S_LMS_WORKER_PRESTOP_SLEEP``
+     - ``15``
    * - ``K8S_MFE_CPU_REQUEST``
      - ``10m``
    * - ``K8S_MFE_MEMORY_REQUEST``

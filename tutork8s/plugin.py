@@ -199,6 +199,8 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("K8S_CMS_MEMORY_LIMIT", "2Gi"),
         ("K8S_CMS_REPLICAS", 1),
         ("K8S_CMS_MAX_REPLICAS", 3),
+        ("K8S_CMS_TERMINATION_GRACE_PERIOD_SECONDS", 90),
+        ("K8S_CMS_PRESTOP_SLEEP", 15),
         # CMS Worker resources
         ("K8S_CMS_WORKER_CPU_REQUEST", "25m"),
         ("K8S_CMS_WORKER_MEMORY_REQUEST", "1Gi"),
@@ -206,6 +208,8 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("K8S_CMS_WORKER_MEMORY_LIMIT", "3Gi"),
         ("K8S_CMS_WORKER_REPLICAS", 1),
         ("K8S_CMS_WORKER_MAX_REPLICAS", 3),
+        ("K8S_CMS_WORKER_TERMINATION_GRACE_PERIOD_SECONDS", 90),
+        ("K8S_CMS_WORKER_PRESTOP_SLEEP", 15),
         # LMS resources
         ("K8S_LMS_CPU_REQUEST", "20m"),
         ("K8S_LMS_MEMORY_REQUEST", "1Gi"),
@@ -213,6 +217,8 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("K8S_LMS_MEMORY_LIMIT", "2Gi"),
         ("K8S_LMS_REPLICAS", 1),
         ("K8S_LMS_MAX_REPLICAS", 3),
+        ("K8S_LMS_TERMINATION_GRACE_PERIOD_SECONDS", 90),
+        ("K8S_LMS_PRESTOP_SLEEP", 15),
         # LMS Worker resources
         ("K8S_LMS_WORKER_CPU_REQUEST", "25m"),
         ("K8S_LMS_WORKER_MEMORY_REQUEST", "1Gi"),
@@ -220,6 +226,8 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("K8S_LMS_WORKER_MEMORY_LIMIT", "3Gi"),
         ("K8S_LMS_WORKER_REPLICAS", 1),
         ("K8S_LMS_WORKER_MAX_REPLICAS", 3),
+        ("K8S_LMS_WORKER_TERMINATION_GRACE_PERIOD_SECONDS", 90),
+        ("K8S_LMS_WORKER_PRESTOP_SLEEP", 15),
         # MFE resources
         ("K8S_MFE_CPU_REQUEST", "10m"),
         ("K8S_MFE_MEMORY_REQUEST", "30Mi"),
