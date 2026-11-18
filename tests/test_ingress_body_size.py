@@ -43,6 +43,7 @@ class IngressBodySizeTests(unittest.TestCase):
             ):
                 config = dict(hooks.Filters.CONFIG_DEFAULTS.iterate())
                 config.update(
+                    K8S_CADDY_LMS_KEEPALIVE=0,
                     LMS_HOST="elearning.avanxa.com",
                     CMS_HOST="studio.elearning.avanxa.com",
                     K8S_LMS_INGRESS_PROXY_BODY_SIZE=lms_size,
