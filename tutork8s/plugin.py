@@ -45,6 +45,7 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("K8S_KEDA_REDIS_TLS_ENABLE", False),
         ("K8S_KEDA_REDIS_UNSAFE_SSL", False),
         ("K8S_CADDY_METRICS_PORT", 9180),
+        ("K8S_CADDY_LMS_KEEPALIVE", "10s"),
         ("K8S_LMS_KEDA_ENABLE", False),
         ("K8S_LMS_KEDA_TARGET_INFLIGHT", 1),
         ("K8S_CMS_KEDA_ENABLE", False),
@@ -364,6 +365,31 @@ hooks.Filters.IMAGES_PUSH.add_items(
 # (It is safe & recommended to leave
 #  this section as-is :)
 ########################################
+
+
+def configure_lms_keepalive(caddyfile: str, duration: str) -> str:
+    """Configure idle HTTP connections to the LMS and CMS upstreams."""
+    proxy = "reverse_proxy {args.0} {"
+    imports = ['import proxy "lms:8000"', 'import proxy "cms:8000"']
+    if caddyfile.count(proxy) != 1 or any(
+        caddyfile.count(item) != 1 for item in imports
+    ):
+        raise ValueError("Cannot configure Caddy keepalive: unexpected Tutor Caddyfile")
+    caddyfile = caddyfile.replace(proxy, proxy + "\n        {block}")
+    for item in imports:
+        caddyfile = caddyfile.replace(
+            item,
+            item + " {\n        transport http {\n"
+            f"            keepalive {duration}\n"
+            "        }\n    }",
+        )
+    return caddyfile
+
+
+hooks.Filters.ENV_TEMPLATE_FILTERS.add_item(
+    ("k8s_lms_keepalive", configure_lms_keepalive)
+)
+
 
 hooks.Filters.ENV_TEMPLATE_ROOTS.add_items(
     # Root paths for template files, relative to the project root.

@@ -152,6 +152,14 @@ and preserves other annotations, TLS configuration, and routing. Reapply the
 rendered manifests through your normal deployment workflow. Caddy and the
 application retain their own upload limits.
 
+Caddy upstream keepalive
+========================
+
+Caddy retires idle HTTP connections to the LMS and Studio after ten seconds
+by default. Set ``K8S_CADDY_LMS_KEEPALIVE`` to another Caddy duration to
+change this, or to ``0``, ``None``, or an empty value to omit the patch. Worker
+processes do not receive HTTP traffic from Caddy.
+
 KEDA autoscaling
 ================
 

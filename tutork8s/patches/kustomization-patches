@@ -15,3 +15,15 @@
         nginx.ingress.kubernetes.io/proxy-body-size: {{ body_size | string | tojson }}
 {% endif %}
 {% endfor %}
+{% if K8S_CADDY_LMS_KEEPALIVE and K8S_CADDY_LMS_KEEPALIVE | string | lower not in ["0", "none"] %}
+{% set caddyfile %}{% include "apps/caddy/Caddyfile" %}{% endset %}
+- target:
+    version: v1
+    kind: ConfigMap
+    name: caddy-config
+  patch: |-
+    - op: replace
+      path: /data/Caddyfile
+      value: |
+        {{ caddyfile | k8s_lms_keepalive(K8S_CADDY_LMS_KEEPALIVE) | trim | indent(8) }}
+{% endif %}
