@@ -1,6 +1,6 @@
 # Change log
 
-## Unreleased
+## Version 22.5.0 (2026-11-18)
 
 - Set Caddy HTTP keepalive for LMS and CMS upstreams to 10 seconds by default. Set `K8S_CADDY_LMS_KEEPALIVE` to `0`, `None`, or an empty value to omit the patch.
 
