@@ -247,3 +247,25 @@ spec:
   # Only the public Service bypasses readiness; caddy-metrics still gates KEDA.
   publishNotReadyAddresses: true
 {% endif %}
+
+
+{# The shared Instrumentation CR is managed by Terraform in the operator namespace. #}
+{% if K8S_OTEL_ENABLE %}
+{% for workload in [
+  {"name": "lms", "enabled": K8S_OTEL_LMS_ENABLE},
+  {"name": "cms", "enabled": K8S_OTEL_CMS_ENABLE},
+  {"name": "lms-worker", "enabled": K8S_OTEL_LMS_WORKER_ENABLE},
+  {"name": "cms-worker", "enabled": K8S_OTEL_CMS_WORKER_ENABLE},
+] if workload.enabled %}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ workload.name }}
+spec:
+  template:
+    metadata:
+      annotations:
+        instrumentation.opentelemetry.io/inject-python: {{ K8S_OTEL_INSTRUMENTATION_REF | string | tojson }}
+{% endfor %}
+{% endif %}

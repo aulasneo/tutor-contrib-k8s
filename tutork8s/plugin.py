@@ -44,6 +44,17 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("K8S_KEDA_REDIS_PRIORITY_STEPS", [0, 3, 6, 9]),
         ("K8S_KEDA_REDIS_TLS_ENABLE", False),
         ("K8S_KEDA_REDIS_UNSAFE_SSL", False),
+        # OpenTelemetry Python auto-instrumentation. Terraform owns the shared
+        # Instrumentation resource; these settings opt this site's workloads in.
+        ("K8S_OTEL_ENABLE", False),
+        (
+            "K8S_OTEL_INSTRUMENTATION_REF",
+            "opentelemetry-operator-system/tutork8s-python",
+        ),
+        ("K8S_OTEL_LMS_ENABLE", True),
+        ("K8S_OTEL_CMS_ENABLE", True),
+        ("K8S_OTEL_LMS_WORKER_ENABLE", True),
+        ("K8S_OTEL_CMS_WORKER_ENABLE", True),
         ("K8S_CADDY_METRICS_PORT", 9180),
         ("K8S_CADDY_LMS_KEEPALIVE", "10s"),
         ("K8S_LMS_KEDA_ENABLE", False),

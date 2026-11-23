@@ -85,6 +85,46 @@ the `official KEDA deployment guide
 <https://keda.sh/docs/2.20/deploy/>`__ for non-Helm installation methods and
 cluster-specific options.
 
+Enable Python OpenTelemetry instrumentation
+============================================
+
+The plugin can opt LMS, CMS, and their Celery workers into Python
+zero-code instrumentation through the OpenTelemetry Operator. The Operator
+must be installed once per cluster using externally managed Terraform IaC.
+Terraform creates one shared ``Instrumentation`` resource in the Operator
+namespace, deploys Tempo with S3 storage, and configures Alloy as the OTLP
+receiver and routing layer. The plugin only adds injection annotations to
+selected Deployments in its defined Tutor namespace. It cannot create
+cluster-scoped CRDs, RBAC, admission webhooks, or install the Operator.
+
+Apply the Terraform configuration in ``owly-k8s`` first. It installs the
+cluster-wide Operator, creates one shared Python ``Instrumentation`` resource,
+configures Alloy to receive OTLP/HTTP, sends traces to Tempo, and sends metrics
+to Mimir. Tempo stores traces in S3. The Tutor plugin does not need cluster
+permissions or an endpoint value for this shared path.
+
+.. code-block:: bash
+
+    tutor plugins enable k8s
+    tutor config save --set K8S_OTEL_ENABLE=true
+    tutor k8s start
+
+Instrumentation is disabled by default. ``K8S_OTEL_LMS_ENABLE``,
+``K8S_OTEL_CMS_ENABLE``, ``K8S_OTEL_LMS_WORKER_ENABLE``, and
+``K8S_OTEL_CMS_WORKER_ENABLE`` allow opting individual workloads out while
+the global switch is on. ``K8S_OTEL_INSTRUMENTATION_REF`` can point a site to
+a different shared or site-specific Operator ``Instrumentation`` object; its
+default is ``opentelemetry-operator-system/tutork8s-python``.
+
+Terraform configures Python trace and metric exporters to use OTLP. Alloy sends
+traces to Tempo and metrics to Mimir. The Operator supports cross-namespace
+references, so sites can share Terraform-managed settings while retaining
+per-site opt-in control.
+
+Python auto-instrumentation around prefork servers and Celery workers can have
+process-lifecycle limitations, especially for periodic metric export. Start
+with one workload type, inspect worker and application behavior, then expand.
+
 Usage
 *****
 
