@@ -1,6 +1,6 @@
 # Change log
 
-## Unreleased
+## Version 22.6.1 (2026-11-23)
 
 - Enable Python OpenTelemetry instrumentation
 
