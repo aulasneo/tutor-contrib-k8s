@@ -41,6 +41,18 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("K8S_KEDA_POLLING_INTERVAL_SECONDS", 15),
         ("K8S_KEDA_FALLBACK_FAILURE_THRESHOLD", 3),
         ("K8S_KEDA_FALLBACK_REPLICAS", 1),
+        # Prometheus and HPA behavior for the LMS/CMS web deployments.
+        (
+            "K8S_KEDA_PROMETHEUS_SERVER_ADDRESS",
+            "http://prometheus.monitoring.svc.cluster.local:9090",
+        ),
+        ("K8S_KEDA_INFLIGHT_AVERAGING_WINDOW", "2m"),
+        ("K8S_KEDA_WEB_SCALE_UP_STABILIZATION_WINDOW_SECONDS", 60),
+        ("K8S_KEDA_WEB_SCALE_UP_PODS", 1),
+        ("K8S_KEDA_WEB_SCALE_UP_PERIOD_SECONDS", 60),
+        ("K8S_KEDA_WEB_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS", 900),
+        ("K8S_KEDA_WEB_SCALE_DOWN_PODS", 1),
+        ("K8S_KEDA_WEB_SCALE_DOWN_PERIOD_SECONDS", 300),
         ("K8S_KEDA_REDIS_PRIORITY_STEPS", [0, 3, 6, 9]),
         ("K8S_KEDA_REDIS_TLS_ENABLE", False),
         ("K8S_KEDA_REDIS_UNSAFE_SSL", False),
@@ -58,9 +70,15 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("K8S_CADDY_METRICS_PORT", 9180),
         ("K8S_CADDY_LMS_KEEPALIVE", "10s"),
         ("K8S_LMS_KEDA_ENABLE", False),
-        ("K8S_LMS_KEDA_TARGET_INFLIGHT", 1),
+        (
+            "K8S_LMS_KEDA_TARGET_INFLIGHT",
+            "{{ [4, OPENEDX_LMS_UWSGI_WORKERS | int] | max }}",
+        ),
         ("K8S_CMS_KEDA_ENABLE", False),
-        ("K8S_CMS_KEDA_TARGET_INFLIGHT", 1),
+        (
+            "K8S_CMS_KEDA_TARGET_INFLIGHT",
+            "{{ [4, OPENEDX_CMS_UWSGI_WORKERS | int] | max }}",
+        ),
         ("K8S_LMS_WORKER_KEDA_ENABLE", False),
         (
             "K8S_LMS_WORKER_KEDA_QUEUE_NAMES",

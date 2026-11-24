@@ -99,6 +99,11 @@ class CaddyRenderingTests(unittest.TestCase):
                         self.assertIn("fallback", obj["spec"])
                         for trigger in obj["spec"]["triggers"]:
                             metadata = trigger["metadata"]
+                            if trigger["type"] == "prometheus":
+                                selected.add(
+                                    re.search(r'host="([^"]+)"', metadata["query"])[1]
+                                )
+                                continue
                             self.assertEqual(metadata["format"], "prometheus")
                             self.assertEqual(metadata["aggregationType"], "sum")
                             self.assertEqual(
@@ -115,6 +120,76 @@ class CaddyRenderingTests(unittest.TestCase):
                         "--resolve" in command[-1].split("host='")[1], tls and proxy
                     )
                     self.assertGreater(startup["timeoutSeconds"], 3 * (len(warmed) + 1))
+
+    def test_lms_cms_scaling(self):
+        settings = {
+            "K8S_KEDA_PROMETHEUS_SERVER_ADDRESS": "http://metrics.example.test",
+            "K8S_KEDA_INFLIGHT_AVERAGING_WINDOW": "5m",
+            "K8S_KEDA_WEB_SCALE_UP_STABILIZATION_WINDOW_SECONDS": 30,
+            "K8S_KEDA_WEB_SCALE_UP_PODS": 2,
+            "K8S_KEDA_WEB_SCALE_UP_PERIOD_SECONDS": 45,
+            "K8S_KEDA_WEB_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS": 600,
+            "K8S_KEDA_WEB_SCALE_DOWN_PODS": 3,
+            "K8S_KEDA_WEB_SCALE_DOWN_PERIOD_SECONDS": 240,
+            "K8S_LMS_REPLICAS": 2,
+            "K8S_LMS_MAX_REPLICAS": 8,
+            "OPENEDX_LMS_UWSGI_WORKERS": 8,
+            "OPENEDX_CMS_UWSGI_WORKERS": 6,
+            "K8S_CMS_KEDA_TARGET_INFLIGHT": 3,
+        }
+        for custom in (False, True):
+            render = renderer(
+                K8S_LMS_KEDA_ENABLE=True,
+                K8S_CMS_KEDA_ENABLE=True,
+                K8S_NAMESPACE="test",
+                **(settings if custom else {}),
+            )
+            objects = resources(render, "k8s-deployments")
+            for service in ("lms", "cms"):
+                with self.subTest(custom=custom, service=service):
+                    spec = objects["ScaledObject", service]["spec"]
+                    target = {"lms": 8, "cms": 3}[service] if custom else 4
+                    window = "5m" if custom else "2m"
+                    address = (
+                        settings["K8S_KEDA_PROMETHEUS_SERVER_ADDRESS"]
+                        if custom
+                        else "http://prometheus.monitoring.svc.cluster.local:9090"
+                    )
+                    self.assertEqual(
+                        spec["triggers"],
+                        [
+                            {
+                                "type": "prometheus",
+                                "metricType": "AverageValue",
+                                "metadata": {
+                                    "query": f'sum(avg_over_time(caddy_http_requests_in_flight{{namespace="test",host="{service}.example.test",handler="subroute"}}[{window}]))',
+                                    "threshold": str(target),
+                                    "serverAddress": address,
+                                    "ignoreNullValues": "false",
+                                },
+                            }
+                        ],
+                    )
+                    limits = (2, 8) if custom and service == "lms" else (1, 3)
+                    self.assertEqual(
+                        (spec["minReplicaCount"], spec["maxReplicaCount"]), limits
+                    )
+                    behavior = spec["advanced"]["horizontalPodAutoscalerConfig"][
+                        "behavior"
+                    ]
+                    for direction, values in (
+                        ("scaleUp", (30, 2, 45) if custom else (60, 1, 60)),
+                        ("scaleDown", (600, 3, 240) if custom else (900, 1, 300)),
+                    ):
+                        stabilization, pods, period = values
+                        self.assertEqual(
+                            behavior[direction]["stabilizationWindowSeconds"],
+                            stabilization,
+                        )
+                        self.assertEqual(
+                            behavior[direction]["policies"],
+                            [{"type": "Pods", "value": pods, "periodSeconds": period}],
+                        )
 
     def test_warmup_is_only_rendered_inside_probe(self):
         self.assertFalse(env.is_rendered("k8s/partials/caddy-metrics-warmup.sh"))
