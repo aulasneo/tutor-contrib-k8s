@@ -13,8 +13,8 @@ What it does
 - Adds Kubernetes patch templates that tweak deployments, HPAs, and resource
   requests/limits for Tutor services.
 - Adds opt-in KEDA autoscaling for request-serving workloads using Caddy
-  in-flight requests and for Celery workers using Redis queue depth. This path
-  does not require Prometheus.
+  in-flight requests and for Celery workers using Redis queue depth. LMS and CMS use
+  an existing Prometheus endpoint for time-averaged concurrency.
 - Exposes ``K8S_*`` configuration settings so you can tune replicas, HPA
   behavior, and resources without editing manifests by hand.
 - Includes PodDisruptionBudget resources for core services with configurable
@@ -210,6 +210,42 @@ installed separately in the cluster. Enable it per workload with
 ``K8S_MFE_KEDA_ENABLE``, or ``K8S_CADDY_KEDA_ENABLE``. Enabling KEDA for a
 workload suppresses that workload's legacy CPU/memory HPA in newly rendered
 manifests.
+
+Before enabling or upgrading LMS/CMS scaling, point
+``K8S_KEDA_PROMETHEUS_SERVER_ADDRESS`` at a Prometheus query endpoint reachable
+by KEDA. Configure it to scrape each Caddy pod once via the existing
+``caddy-metrics`` endpoints, retaining the Kubernetes ``namespace`` label.
+A 15–30 second scrape interval gives several samples in the default window.
+Run the rendered query in Prometheus and confirm it returns one numeric value,
+including zero when idle. Missing data counts toward the configured fallback.
+
+With an instantaneous target of one, two overlapping requests on a warm pod
+can trigger a second, cold pod. LMS and CMS now average each Caddy series over
+``K8S_KEDA_INFLIGHT_AVERAGING_WINDOW`` (default ``2m``) and sum the averages.
+The HPA divides this total by replica count. The target defaults to the
+workload's configured uWSGI process count with a floor of four. Override
+``K8S_LMS_KEDA_TARGET_INFLIGHT`` or ``K8S_CMS_KEDA_TARGET_INFLIGHT`` per site.
+An explicit old target of one continues to take precedence.
+
+The HPA uses a 60-second scale-up stabilization window and can add one pod per
+60 seconds. It retains the highest recommendation from the last 900 seconds
+on scale-down and can remove one pod per 300 seconds. Use the
+``K8S_KEDA_WEB_SCALE_*`` settings in the guide to tune both LMS and CMS.
+KEDA's ``cooldownPeriod`` governs scale-down to zero. These workloads keep
+at least one replica, so the HPA controls scale-down throughout their range.
+
+Compare 24-hour periods with similar traffic before and after rollout.
+Replace ``<ns>`` with your site's Kubernetes namespace.
+
+- Track ``changes(kube_deployment_status_replicas{namespace="<ns>",deployment="lms"}[24h])``.
+  Check whether the daily number of replica changes falls.
+- Compare ``avg_over_time(kube_deployment_status_replicas{namespace="<ns>",deployment="lms"}[24h])``
+  to see whether LMS runs fewer replicas on average. Multiply each period's
+  average by the memory request per LMS pod to estimate average reserved
+  memory. Check whether node count also trends down.
+- Compare the share of requests over one second in uWSGI logs and ingress p95.
+  Check that latency holds up during sustained peaks. Newly added pods may
+  still receive little traffic until Caddy gains per-request balancing.
 
 See `the Verawood autoscaling guide
 <https://github.com/aulasneo/tutor-contrib-k8s/blob/main/docs/autoscaling-v22.md>`__

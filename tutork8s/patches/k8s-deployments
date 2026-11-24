@@ -30,14 +30,12 @@ spec:
     "replicas": K8S_LMS_REPLICAS,
     "max_replicas": K8S_LMS_MAX_REPLICAS,
     "target": K8S_LMS_KEDA_TARGET_INFLIGHT,
-    "scale_up_window": K8S_LMS_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS,
-    "scale_up_percent": K8S_LMS_HPA_SCALE_UP_PERCENT,
-    "scale_up_pods": K8S_LMS_HPA_SCALE_UP_PODS,
-    "scale_up_period": K8S_LMS_HPA_SCALE_UP_PERIOD_SECONDS,
-    "scale_down_window": K8S_LMS_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS,
-    "scale_down_percent": K8S_LMS_HPA_SCALE_DOWN_PERCENT,
-    "scale_down_pods": K8S_LMS_HPA_SCALE_DOWN_PODS,
-    "scale_down_period": K8S_LMS_HPA_SCALE_DOWN_PERIOD_SECONDS,
+    "scale_up_window": K8S_KEDA_WEB_SCALE_UP_STABILIZATION_WINDOW_SECONDS,
+    "scale_up_pods": K8S_KEDA_WEB_SCALE_UP_PODS,
+    "scale_up_period": K8S_KEDA_WEB_SCALE_UP_PERIOD_SECONDS,
+    "scale_down_window": K8S_KEDA_WEB_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS,
+    "scale_down_pods": K8S_KEDA_WEB_SCALE_DOWN_PODS,
+    "scale_down_period": K8S_KEDA_WEB_SCALE_DOWN_PERIOD_SECONDS,
   },
   {
     "enabled": K8S_CMS_KEDA_ENABLE,
@@ -46,14 +44,12 @@ spec:
     "replicas": K8S_CMS_REPLICAS,
     "max_replicas": K8S_CMS_MAX_REPLICAS,
     "target": K8S_CMS_KEDA_TARGET_INFLIGHT,
-    "scale_up_window": K8S_CMS_HPA_SCALE_UP_STABILIZATION_WINDOW_SECONDS,
-    "scale_up_percent": K8S_CMS_HPA_SCALE_UP_PERCENT,
-    "scale_up_pods": K8S_CMS_HPA_SCALE_UP_PODS,
-    "scale_up_period": K8S_CMS_HPA_SCALE_UP_PERIOD_SECONDS,
-    "scale_down_window": K8S_CMS_HPA_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS,
-    "scale_down_percent": K8S_CMS_HPA_SCALE_DOWN_PERCENT,
-    "scale_down_pods": K8S_CMS_HPA_SCALE_DOWN_PODS,
-    "scale_down_period": K8S_CMS_HPA_SCALE_DOWN_PERIOD_SECONDS,
+    "scale_up_window": K8S_KEDA_WEB_SCALE_UP_STABILIZATION_WINDOW_SECONDS,
+    "scale_up_pods": K8S_KEDA_WEB_SCALE_UP_PODS,
+    "scale_up_period": K8S_KEDA_WEB_SCALE_UP_PERIOD_SECONDS,
+    "scale_down_window": K8S_KEDA_WEB_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS,
+    "scale_down_pods": K8S_KEDA_WEB_SCALE_DOWN_PODS,
+    "scale_down_period": K8S_KEDA_WEB_SCALE_DOWN_PERIOD_SECONDS,
   },
   {
     "enabled": K8S_MFE_KEDA_ENABLE,
@@ -73,6 +69,7 @@ spec:
   },
 ] %}
 {% for workload in K8S_WEB_KEDA_WORKLOADS if workload.enabled %}
+{% set smoothed = workload.name in ["lms", "cms"] %}
 ---
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
@@ -99,9 +96,11 @@ spec:
           stabilizationWindowSeconds: {{ workload.scale_up_window }}
           selectPolicy: Max
           policies:
+            {% if not smoothed %}
             - type: Percent
               value: {{ workload.scale_up_percent }}
               periodSeconds: {{ workload.scale_up_period }}
+            {% endif %}
             - type: Pods
               value: {{ workload.scale_up_pods }}
               periodSeconds: {{ workload.scale_up_period }}
@@ -109,13 +108,25 @@ spec:
           stabilizationWindowSeconds: {{ workload.scale_down_window }}
           selectPolicy: Min
           policies:
+            {% if not smoothed %}
             - type: Percent
               value: {{ workload.scale_down_percent }}
               periodSeconds: {{ workload.scale_down_period }}
+            {% endif %}
             - type: Pods
               value: {{ workload.scale_down_pods }}
               periodSeconds: {{ workload.scale_down_period }}
   triggers:
+    {% if smoothed %}
+    - type: prometheus
+      metricType: AverageValue
+      metadata:
+        serverAddress: {{ K8S_KEDA_PROMETHEUS_SERVER_ADDRESS | tojson }}
+        query: >-
+          sum(avg_over_time(caddy_http_requests_in_flight{namespace={{ K8S_NAMESPACE | tojson }},host={{ workload.host | tojson }},handler="subroute"}[{{ K8S_KEDA_INFLIGHT_AVERAGING_WINDOW }}]))
+        threshold: "{{ workload.target }}"
+        ignoreNullValues: "false"
+    {% else %}
     - type: metrics-api
       metricType: AverageValue
       metadata:
@@ -125,6 +136,7 @@ spec:
         targetValue: "{{ workload.target }}"
         aggregateFromKubeServiceEndpoints: "true"
         aggregationType: sum
+    {% endif %}
 {% endfor %}
 
 {% set K8S_WORKER_KEDA_WORKLOADS = [
