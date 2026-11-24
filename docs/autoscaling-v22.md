@@ -5,25 +5,29 @@ uses demand signals that are closer to the work each deployment performs:
 
 | Workload | Signal | Default target |
 | --- | --- | ---: |
-| LMS | Caddy in-flight requests for `LMS_HOST` | 1 per pod |
-| CMS | Caddy in-flight requests for `CMS_HOST` | 1 per pod |
+| LMS | Caddy in-flight requests for `LMS_HOST` | uWSGI process count, minimum 4 per pod |
+| CMS | Caddy in-flight requests for `CMS_HOST` | uWSGI process count, minimum 4 per pod |
 | MFE | Caddy in-flight requests for `apps.<LMS_HOST>` | 10 per pod |
 | Caddy | Sum of in-flight requests for configured application hosts | 20 per pod |
 | LMS worker | Sum of pending Redis list entries in LMS Celery queues | 2 per pod |
 | CMS worker | Sum of pending Redis list entries in CMS Celery queues | 2 per pod |
 
-There is no Prometheus server or Prometheus Adapter in this design. Caddy emits
-Prometheus exposition text, but KEDA's Metrics API scaler reads it directly.
-KEDA 2.20 can discover every ready endpoint behind a Kubernetes Service and sum
-their values, so Caddy can have multiple replicas without returning a random
-replica's gauge. See the [KEDA Metrics API scaler documentation][metrics-api]
-and [Caddy metrics documentation][caddy-metrics].
+LMS and CMS use the [KEDA Prometheus scaler](https://keda.sh/docs/2.20/scalers/prometheus/).
+MFE and Caddy use the [Metrics API scaler][metrics-api] to aggregate gauges
+over ready Caddy endpoints. Worker scaling reads Redis directly.
 
 ## Prerequisites
 
 - Tutor 22.0.2 or newer in the 22.x series.
 - KEDA 2.20 or newer installed and healthy in the cluster. The plugin does not
   install or manage KEDA.
+- Before upgrading or enabling LMS/CMS KEDA, configure an existing Prometheus
+  server to scrape each Caddy pod once via the metrics Service endpoints at
+  `/metrics`, port 9180, with the site's Kubernetes `namespace` label.
+  Use a scrape interval well below the averaging window, for example 15–30 s.
+  Set `K8S_KEDA_PROMETHEUS_SERVER_ADDRESS` to its query API base URL and
+  allow KEDA to reach it. The default DNS name assumes a Service named
+  `prometheus` in `monitoring`. The plugin does not install a scraper.
 - Network policy, if present, must allow the KEDA operator to reach Caddy pods
   on TCP port 9180 and Redis on its configured port.
 - The KEDA operator must retain its standard EndpointSlice read permissions;
@@ -52,10 +56,11 @@ When any web KEDA setting is enabled, the plugin:
    consecutive failures. Probe timeouts allow three seconds per request plus
    time for verification. The probe stops after success; scrapes generate no
    warm-up requests.
-4. Creates one Metrics API trigger per host. The trigger selects
-   `caddy_http_requests_in_flight` with exact `host` and
-   `handler="subroute"` labels, then sums the gauge over all ready Caddy
-   endpoints.
+4. For LMS and CMS, queries Prometheus for the sum of the per-series
+   time averages, filtered by namespace, exact host and `handler="subroute"`.
+   The `AverageValue` target expresses concurrency per application replica.
+   With `ignoreNullValues: "false"`, missing history counts toward fallback.
+   MFE and Caddy read the instantaneous gauges directly from ready endpoints.
 
 `K8S_MFE_KEDA_HOST` defaults to an empty string, which means
 `apps.<LMS_HOST>`. Set it explicitly when the MFE host is customized.
@@ -91,10 +96,11 @@ Run the focused real-Caddy checks with
 `RUN_CADDY_TESTS=1 python -m unittest discover -s tests -k fresh` (Docker required).
 The normal unit suite checks rendered host coverage and scaler settings.
 
-The in-flight gauge is instantaneous. It reacts well to sustained concurrency,
-but a 15-second poll can miss a very short spike. For known events, pre-warm the
-deployment by temporarily raising its minimum replicas or use a separate KEDA
-cron ScaledObject outside this plugin.
+LMS and CMS use a 60-second scale-up stabilization window and a single
+Pods policy allowing one addition per minute. On scale-down the HPA retains
+the highest recommendation over 900 seconds and removes at most one pod per
+300 seconds. KEDA's cooldown period applies only when scaling down to zero.
+For a known event, pre-warm the deployment by raising its minimum replicas.
 
 ## How worker scaling works
 
@@ -118,8 +124,7 @@ namespaced Secret and TriggerAuthentication, adding the username only when
 credentials are not placed in ScaledObject metadata. TLS behavior is controlled
 by the settings below. See the [KEDA Redis Lists scaler documentation][redis].
 
-Worker scale-down stabilization defaults to 300 seconds; LMS, CMS, MFE,
-and Caddy default to 120 seconds. The scale-down percentage policy defaults to
+Worker scale-down stabilization defaults to 300 seconds. MFE and Caddy default to 120 seconds. The scale-down percentage policy defaults to
 100%, alongside a one-pod-per-60-seconds policy. With `selectPolicy: Min`, the
 more restrictive policy applies, limiting scale-down to one pod per period.
 
@@ -137,14 +142,27 @@ Global settings:
 | `K8S_KEDA_REDIS_UNSAFE_SSL` | `false` | Skip Redis certificate verification; avoid in production |
 | `K8S_CADDY_METRICS_PORT` | `9180` | Internal Caddy metrics port |
 
+Settings shared by the LMS and CMS KEDA web scalers:
+
+| Setting | Default |
+| --- | --- |
+| `K8S_KEDA_PROMETHEUS_SERVER_ADDRESS` | `http://prometheus.monitoring.svc.cluster.local:9090` |
+| `K8S_KEDA_INFLIGHT_AVERAGING_WINDOW` | `2m` |
+| `K8S_KEDA_WEB_SCALE_UP_STABILIZATION_WINDOW_SECONDS` | `60` |
+| `K8S_KEDA_WEB_SCALE_UP_PODS` | `1` |
+| `K8S_KEDA_WEB_SCALE_UP_PERIOD_SECONDS` | `60` |
+| `K8S_KEDA_WEB_SCALE_DOWN_STABILIZATION_WINDOW_SECONDS` | `900` |
+| `K8S_KEDA_WEB_SCALE_DOWN_PODS` | `1` |
+| `K8S_KEDA_WEB_SCALE_DOWN_PERIOD_SECONDS` | `300` |
+
 Per-workload settings:
 
 | Setting | Default |
 | --- | ---: |
 | `K8S_LMS_KEDA_ENABLE` | `false` |
-| `K8S_LMS_KEDA_TARGET_INFLIGHT` | `1` |
+| `K8S_LMS_KEDA_TARGET_INFLIGHT` | Greater of 4 and `OPENEDX_LMS_UWSGI_WORKERS` |
 | `K8S_CMS_KEDA_ENABLE` | `false` |
-| `K8S_CMS_KEDA_TARGET_INFLIGHT` | `1` |
+| `K8S_CMS_KEDA_TARGET_INFLIGHT` | Greater of 4 and `OPENEDX_CMS_UWSGI_WORKERS` |
 | `K8S_MFE_KEDA_ENABLE` | `false` |
 | `K8S_MFE_KEDA_HOST` | empty (`apps.<LMS_HOST>`) |
 | `K8S_MFE_KEDA_TARGET_INFLIGHT` | `10` |
@@ -158,8 +176,10 @@ Per-workload settings:
 | `K8S_CMS_WORKER_KEDA_QUEUE_NAMES` | CMS queues listed above |
 | `K8S_CMS_WORKER_KEDA_TARGET_QUEUE_LENGTH` | `2` |
 
-KEDA reuses each workload's existing `K8S_*_REPLICAS`,
-`K8S_*_MAX_REPLICAS`, and `K8S_*_HPA_SCALE_*` settings. Enabling KEDA for one
+KEDA reuses each workload's existing replica bounds. For LMS/CMS, migrate
+any custom KEDA stabilization windows or rates from the legacy
+`K8S_*_HPA_SCALE_*` keys to the settings above. MFE, Caddy and workers
+continue to use their workload-specific HPA behavior settings. Enabling KEDA for one
 workload omits only that workload's legacy CPU/memory HPA from newly rendered
 manifests. Other workloads keep their existing HPA behavior.
 
@@ -236,6 +256,11 @@ kubectl get scaledobjects,hpa -n <namespace>
 kubectl describe scaledobject lms -n <namespace>
 kubectl get hpa lms-keda-hpa -n <namespace> --watch
 ```
+
+For LMS/CMS, run the rendered `spec.triggers[0].metadata.query` in the configured
+Prometheus server. Confirm a single numeric sample, and check that the underlying
+selector returns one series per scraped Caddy pod. Confirm the HPA shows a
+current metric and target and that the ScaledObject's Fallback condition is false.
 
 Test the internal Caddy endpoint from a temporary pod permitted by network
 policy and confirm the expected host series exists:

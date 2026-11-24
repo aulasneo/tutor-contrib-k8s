@@ -1,5 +1,10 @@
 # Change log
 
+## Unreleased
+
+- LMS/CMS KEDA now uses a 2-minute Prometheus average and raises the default target from 1 to the configured uWSGI process count with a minimum of 4. Before upgrading, configure Prometheus to scrape Caddy endpoints and verify the query URL and namespace label.
+- LMS/CMS KEDA scale-up stabilization increases from 0 to 60 seconds with a one-pod-per-minute cap. Scale-down stabilization increases from 120 to 900 seconds with one removal per 300 seconds (previously 60). Use the new KEDA web behavior settings to override these defaults.
+
 ## Version 22.6.1 (2026-11-23)
 
 - Enable Python OpenTelemetry instrumentation
