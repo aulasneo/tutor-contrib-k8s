@@ -234,13 +234,15 @@ on scale-down and can remove one pod per 300 seconds. Use the
 KEDA's ``cooldownPeriod`` governs scale-down to zero. These workloads keep
 at least one replica, so the HPA controls scale-down throughout their range.
 
-After rollout, compare equivalent traffic periods with the capnet-prod baseline:
+Compare 24-hour periods with similar traffic before and after rollout.
+Replace ``<ns>`` with your site's Kubernetes namespace.
 
 - Track ``changes(kube_deployment_status_replicas{namespace="<ns>",deployment="lms"}[24h])``.
-  Look for a drop from 316 daily changes toward a handful.
+  Check whether the daily number of replica changes falls.
 - Compare ``avg_over_time(kube_deployment_status_replicas{namespace="<ns>",deployment="lms"}[24h])``
-  and memory requests reserved for LMS. Each avoided replica frees its memory
-  request (2 GiB on capnet-prod). Check whether node count trends down.
+  to see whether LMS runs fewer replicas on average. Multiply each period's
+  average by the memory request per LMS pod to estimate average reserved
+  memory. Check whether node count also trends down.
 - Compare the share of requests over one second in uWSGI logs and ingress p95.
   Check that latency holds up during sustained peaks. Newly added pods may
   still receive little traffic until Caddy gains per-request balancing.
